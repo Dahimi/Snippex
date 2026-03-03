@@ -1,0 +1,19 @@
+[project]
+name = "snipex"
+version = "0.1.0"
+description = "Search Snippet Extraction API"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic-settings",
+    "httpx",
+    "langchain-cerebras>=0.8.2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+]
