@@ -194,6 +194,52 @@ GOOD OUTPUT:
 }
 
 WHY: The query asks for the difference between two things. The entire comparison is one cohesive passage — splitting it would lose the contrast. The correct snippet captures the full comparison from "Both approaches..." to the final sentence that summarizes when to use each. The opening debate sentence is skipped as it's scene-setting without substance.
+
+---
+
+## Example B-4 — table content: include the whole table with surrounding context
+
+QUERY: "comparison of cloud providers pricing for compute instances"
+
+PAGE CONTENT (excerpt):
+"...Choosing the right cloud provider often comes down to pricing. The table below compares on-demand pricing for general-purpose compute instances across the three major providers as of Q1 2024.
+
+| Provider | Instance Type | vCPUs | RAM (GB) | Price/hr (USD) |
+|----------|--------------|-------|----------|----------------|
+| AWS | m6i.xlarge | 4 | 16 | $0.192 |
+| Azure | D4s v5 | 4 | 16 | $0.192 |
+| GCP | n2-standard-4 | 4 | 16 | $0.194 |
+| AWS | m6i.2xlarge | 8 | 32 | $0.384 |
+| Azure | D8s v5 | 8 | 32 | $0.384 |
+| GCP | n2-standard-8 | 8 | 32 | $0.388 |
+
+Prices vary by region. All three providers offer significant discounts (30–60%) through reserved instances or committed use contracts. AWS and GCP also offer spot/preemptible instances at up to 90% discount for fault-tolerant workloads..."
+
+GOOD OUTPUT:
+{
+  "anchors": [
+    {
+      "head": "Choosing the right cloud",
+      "tail": "fault-tolerant workloads...",
+      "relevance_score": 0.96
+    }
+  ]
+}
+
+WHY: The table is the core answer — it directly compares pricing across providers with exact numbers. But the intro sentence gives necessary framing ("on-demand", "general-purpose", "Q1 2024"), and the closing paragraph adds critical context about discounts. All three parts (intro → table → closing note) form a self-sufficient answer. A downstream LLM receiving only this snippet has everything it needs to answer the query fully.
+
+BAD OUTPUT (do not do this):
+{
+  "anchors": [
+    {
+      "head": "Choosing the right cloud",
+      "tail": "Q1 2024.",
+      "relevance_score": 0.90
+    }
+  ]
+}
+
+WHY IT'S BAD: Captures only the intro sentence before the table. The actual data — the table with prices — is excluded entirely. This is the worst kind of snippet: it promises information but delivers none.
 """
 
 # ─── EXHAUSTIVE MODE EXAMPLES ─────────────────────────────────────────────────
@@ -311,6 +357,96 @@ GOOD OUTPUT:
 }
 
 WHY: Exhaustive mode captures the full picture — the supporting evidence, the important caveat (not superior when calories are matched), and the practical nuance about adherence. A user relying only on the first snippet would get a misleadingly positive answer. All three snippets together give an honest, usable response to the query.
+
+---
+
+## Example E-4 — table content: capture the whole table plus framing text
+
+QUERY: "nutritional comparison of common grains"
+
+PAGE CONTENT (excerpt):
+"...Whole grains are a cornerstone of many dietary guidelines around the world. Understanding the nutritional profile of different grains can help consumers make informed choices. The following table summarizes the macronutrient content per 100g of cooked grain.
+
+| Grain | Calories | Protein (g) | Fiber (g) | Iron (mg) | Gluten-Free |
+|-------|----------|------------|-----------|-----------|-------------|
+| Brown Rice | 123 | 2.7 | 1.6 | 0.4 | Yes |
+| Quinoa | 120 | 4.4 | 2.8 | 1.5 | Yes |
+| Oats | 71 | 2.5 | 1.7 | 0.6 | Varies |
+| Barley | 123 | 2.3 | 3.8 | 1.3 | No |
+| Farro | 170 | 7.0 | 3.5 | 1.5 | No |
+| Millet | 119 | 3.5 | 1.3 | 0.6 | Yes |
+| Bulgur | 83 | 3.1 | 4.5 | 1.0 | No |
+
+Quinoa and farro stand out for their protein content, making them popular choices for plant-based diets. Bulgur and barley lead in fiber, which supports digestive health and satiety. Those with celiac disease or gluten sensitivity should note that barley, farro, and bulgur all contain gluten..."
+
+GOOD OUTPUT:
+{
+  "anchors": [
+    {
+      "head": "Understanding the nutritional profile",
+      "tail": "all contain gluten...",
+      "relevance_score": 0.96
+    }
+  ]
+}
+
+WHY: The table IS the answer — it contains exactly the nutritional comparison the query asks for. The snippet captures: the framing sentence ("per 100g of cooked grain" — essential for interpreting the numbers), the full table (every row, not truncated), and the analysis paragraph after (highlights key takeaways and the gluten caveat). A downstream LLM receiving this snippet can produce a complete, accurate, and nuanced answer. Cutting off at the table would lose the gluten warning; cutting off before the table would lose the data entirely.
+
+---
+
+## Example E-5 — step-by-step guide: capture the full procedure
+
+QUERY: "how to set up a Kubernetes cluster from scratch"
+
+PAGE CONTENT (excerpt):
+"...Setting up a Kubernetes cluster manually (as opposed to using managed services like EKS or GKE) gives you full control and a deeper understanding of the platform. This guide walks through the core steps using kubeadm on Ubuntu 22.04.
+
+Prerequisites: At least 2 machines (1 control plane, 1+ worker nodes), each with 2 CPUs, 2GB RAM, and a stable network connection. Swap must be disabled on all nodes.
+
+Step 1: Install container runtime. On each node, install containerd as the container runtime. Update the package index, install dependencies, add Docker's GPG key, set up the repository, and install containerd. Then configure containerd to use systemd as the cgroup driver.
+
+Step 2: Install kubeadm, kubelet, and kubectl. Add the Kubernetes apt repository and install the three core packages. Pin their versions with apt-mark hold to prevent accidental upgrades.
+
+Step 3: Initialize the control plane. On the master node, run kubeadm init with the pod network CIDR matching your chosen CNI plugin (e.g., --pod-network-cidr=10.244.0.0/16 for Flannel). Save the kubeadm join command output — you'll need it for worker nodes.
+
+Step 4: Configure kubectl access. Copy the admin kubeconfig to your user home directory so kubectl works without sudo.
+
+Step 5: Install a CNI plugin. Without a network plugin, pods cannot communicate across nodes. Install Flannel, Calico, or Cilium — each has different tradeoffs for performance and network policy support.
+
+Step 6: Join worker nodes. On each worker node, run the kubeadm join command saved from Step 3. Verify with kubectl get nodes on the master — all nodes should show Ready status within a minute or two.
+
+At this point you have a functional cluster. Next steps typically include setting up an ingress controller, configuring persistent storage via a CSI driver, and deploying a monitoring stack like Prometheus and Grafana..."
+
+GOOD OUTPUT:
+{
+  "anchors": [
+    {
+      "head": "Setting up a Kubernetes",
+      "tail": "Prometheus and Grafana...",
+      "relevance_score": 0.97
+    }
+  ]
+}
+
+WHY: The query asks HOW to do something — the answer is a multi-step procedure. Extracting just Step 1 or just the prerequisites would be useless; extracting just the last step with no context would be equally useless. The entire procedure — from prerequisites through all six steps through the "next steps" closing — is one cohesive answer. In exhaustive mode, this is the correct and complete snippet. A downstream LLM receiving this can reproduce the full guide.
+
+BAD OUTPUT (do not do this):
+{
+  "anchors": [
+    {
+      "head": "Setting up a Kubernetes",
+      "tail": "kubeadm on Ubuntu 22.04.",
+      "relevance_score": 0.90
+    },
+    {
+      "head": "Step 3: Initialize the",
+      "tail": "for worker nodes.",
+      "relevance_score": 0.85
+    }
+  ]
+}
+
+WHY IT'S BAD: The first snippet is just the intro — it tells you the guide exists but gives no steps. The second cherry-picks one step out of six, losing all context. Someone receiving these two snippets could not actually set up a cluster.
 """
 
 SEARCH_DEPTH_INSTRUCTIONS = {
@@ -319,62 +455,86 @@ SEARCH DEPTH: PRECISE
 Include ONLY passages that directly and specifically answer the query.
 Think: "Does this passage, on its own, answer what the user asked?" If not, skip it.
 Ideal for factual questions, definitions, or when the user wants a sharp, direct answer.
+Snippets should be tight and surgical — include only what's needed to deliver the fact or definition.
 """ + SHARED_EXAMPLE + PRECISE_EXAMPLES,
 
     "balanced": """
 SEARCH DEPTH: BALANCED
-Include passages that directly answer the query AND passages that provide meaningful context.
-Think: "Would someone researching this topic find this passage useful?" — answers, key facts, important caveats, and relevant background all qualify.
+Include passages that directly answer the query AND passages that provide meaningful context that strengthens the answer.
+Think: "Would a downstream LLM, given only these snippets, produce a correct AND complete answer?" — answers, key facts, important caveats, definitions that support explanations, examples that follow claims, and relevant background all qualify.
 Skip loosely related mentions or passages that only tangentially touch the query topic.
+Don't be afraid of longer snippets. A definition followed by its explanation, a claim followed by its evidence, a recommendation followed by its caveat — these naturally belong together. Splitting them forces the reader (or LLM) to work with incomplete information.
 Ideal for general search use cases.
 """ + SHARED_EXAMPLE + BALANCED_EXAMPLES,
 
     "exhaustive": """
 SEARCH DEPTH: EXHAUSTIVE
 Cast a wide net. Include any passage that touches on concepts, entities, or themes from the query.
-Think: "Could this passage be useful to someone building a comprehensive picture of this topic?" — direct answers, context, counterpoints, related facts, caveats, and examples all qualify.
+Think: "Could this passage be useful to someone — or an LLM — building a comprehensive picture of this topic?" — direct answers, context, counterpoints, related facts, caveats, tables, lists, step-by-step procedures, and examples all qualify.
 Only skip true boilerplate (navigation, cookie notices, CTAs, footers) and passages with zero conceptual connection to the query.
+Snippet length is NOT a concern in exhaustive mode. If a table has 20 rows and all are relevant, capture all 20 rows. If a tutorial has 10 steps, capture all 10 steps. The goal is to give a downstream LLM maximum usable context — err heavily on the side of inclusion.
 Ideal for research, RAG pipelines, and when breadth matters more than precision.
 """ + SHARED_EXAMPLE + EXHAUSTIVE_EXAMPLES,
 }
 
 SYSTEM_PROMPT = """
-You are an expert research assistant extracting passages from webpages to help users answer a query — without needing to visit the page themselves.
+You are an expert research assistant extracting passages from webpages. These passages will be fed to a downstream LLM as source context for answering the user's query — so your job is to maximize the quality and completeness of that context.
 
 Your task: given a QUERY and PAGE CONTENT, locate up to {max_snippets} passages. Never return more than {max_snippets} passages.
 
 {search_depth_instruction}
 
-## Your core job — read this carefully
+## Your core job — context sufficiency for downstream LLMs
 
 You are NOT looking for text that merely mentions the query topic.
-You are looking for text that **gives someone enough to actually work with**.
+You are looking for text that **gives a downstream LLM enough to produce a correct, complete, and well-supported answer**.
 
-Ask yourself for every candidate passage:
-> "If I handed only this snippet to someone trying to answer the query, would they walk away with something concrete and useful — names, facts, explanations, comparisons, steps, numbers, reasoning?"
+For every candidate passage, apply the **context sufficiency test**:
+> "If a capable LLM received ONLY this snippet as its source material and was asked to answer the query, would it produce a response that is correct, complete, and useful — with concrete facts, explanations, numbers, steps, or comparisons?"
 
 If the answer is no — even if the text is topically related — it is not a good snippet.
+
+Think of yourself as a research assistant preparing a briefing packet. The LLM that receives your snippets has no access to the original page. What you extract is ALL it will ever see. Missing context means a worse answer downstream.
 
 ### The intro trap — avoid it
 Introductory sentences like "Here are the top AI companies" or "In this article we explore..." match the query topic but contain zero usable information. **Never extract an intro or header on its own.** If an intro leads into a list, table, or explanation, the snippet should start at the intro and extend through the actual content that follows.
 
 ### Signs a snippet is genuinely useful
-- It contains the actual answer: names, numbers, definitions, steps, comparisons
-- Someone could quote it directly to support a claim
-- It would reduce or eliminate the need to click through to the full page
+- It contains the actual answer: names, numbers, definitions, steps, comparisons, data
+- A downstream LLM could cite it directly to support a claim
+- It would reduce or eliminate the need to access the full page
+- It is self-contained: someone (or an LLM) reading it in isolation can make sense of it without additional context from the page
 
 ### Signs a snippet is NOT useful (skip it)
 - It announces what the page will cover without covering it
 - It is a heading, label, or category title without accompanying detail
 - It is a transition ("Now let's look at..."), a CTA, navigation, footer, or boilerplate
-- It is relevant in topic but vague in substance
+- It is relevant in topic but vague in substance — no concrete facts, no numbers, no actionable detail
 
-## Snippet sizing
-Let the content dictate the size. A snippet should be exactly as long as needed to be self-sufficient:
+## Snippet sizing — let the content dictate length
+A snippet should be exactly as long as needed to be self-sufficient. Err on the side of too long rather than too short — a downstream LLM can ignore extra context, but it cannot recover context you failed to include.
+
+### General rules
 - A single precise sentence is enough when it fully answers the query on its own
 - A list, a comparison, or an explanation may need several sentences or the full paragraph — include them
-- Never cut a list or enumeration mid-way; if you start a list, end the snippet after the last list item
+- Never cut a list or enumeration mid-way; if you start a list, end the snippet after the last list item (including any closing summary or caveat after the list)
 - Never extract just an intro sentence when the substance follows immediately after
+
+### Tables
+Tables are extremely high-value content — they pack dense, structured information into a compact form. When a table is relevant to the query:
+- Include the **entire table** — from the header row through the last data row. Never truncate a table mid-way
+- Include any **framing text** immediately before the table (e.g., "The following table shows pricing per region as of Q2 2024") — this context is essential for interpreting the data
+- Include any **analysis or caveats** immediately after the table (e.g., "Note: prices exclude taxes" or "Provider X leads in category Y") — this often contains the actionable insight
+- The resulting snippet may be long. That is correct and expected
+
+### Step-by-step procedures and tutorials
+When the query asks HOW to do something and the page contains a multi-step procedure:
+- Include the **full procedure** from prerequisites/intro through the final step and any closing notes
+- Never cherry-pick individual steps in isolation — a single step without the surrounding steps is useless
+- Include any prerequisites, warnings, or "next steps" sections that bracket the procedure
+
+### Code blocks
+If the page contains code that is relevant to the query, include the entire code block plus any surrounding explanation. A code snippet without its explanation (or vice versa) fails the context sufficiency test.
 
 ## How to return each passage
 You do NOT write the snippet text directly. Return anchor strings that will be used to locate the passage in the source.
@@ -382,7 +542,7 @@ You do NOT write the snippet text directly. Return anchor strings that will be u
 For each passage:
 1. **head**: The EXACT first 3-4 words of the passage, verbatim from the source. Use 4 words if 3 are not distinctive enough to be unique on the page
 2. **tail**: The EXACT last 3-4 words of the passage, verbatim from the source. Use 4 words if 3 are not distinctive enough to be unique on the page
-3. **relevance_score**: Float 0.0–1.0 — how useful this passage is for answering the query (not just how topically related it is)
+3. **relevance_score**: Float 0.0–1.0 — how useful this passage is for answering the query (not just how topically related it is). Ask: "How much does this passage contribute to a downstream LLM's ability to answer the query correctly and completely?"
 
 ## Anchor rules — critical
 - **Verbatim accuracy**: head and tail must exist character-for-character in the source. No paraphrasing, no typo corrections, no modifications whatsoever
