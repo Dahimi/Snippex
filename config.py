@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+import os
 
 class Settings(BaseSettings):
     # Search Provider: Perplexity
@@ -8,7 +9,7 @@ class Settings(BaseSettings):
     # LLM Provider: Cerebras
     CEREBRAS_API_KEY: str
     CEREBRAS_BASE_URL: str = "https://api.cerebras.ai/v1"
-    CEREBRAS_MODEL: str = "gpt-oss-120b"
+    CEREBRAS_MODEL: str = os.getenv("CEREBRAS_MODEL", "gpt-oss-120b")
     
     # Project Settings
     DEFAULT_NUM_RESULTS: int = 5

@@ -10,6 +10,7 @@ dependencies = [
     "pydantic-settings",
     "httpx",
     "langchain-cerebras>=0.8.2",
+    "regex",
 ]
 
 [dependency-groups]

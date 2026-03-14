@@ -22,6 +22,8 @@ class AnchorExtractionResult(BaseModel):
 class Snippet(BaseModel):
     text: str                  # reconstructed from anchor + source content
     relevance_score: float     # 0.0–1.0, passed through from LLM anchor
+    head: Optional[str] = None
+    tail: Optional[str] = None
 
 class SearchResult(BaseModel):
     rank: int

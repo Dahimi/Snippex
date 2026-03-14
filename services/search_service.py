@@ -50,7 +50,9 @@ class SearchService:
                 if text:
                     snippets.append(Snippet(
                         text=text,
-                        relevance_score=anchor.relevance_score
+                        relevance_score=anchor.relevance_score,
+                        head=anchor.head,
+                        tail=anchor.tail
                     ))
             
             # If we had anchors but none could be reconstructed

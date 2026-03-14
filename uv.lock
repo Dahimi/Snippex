@@ -771,6 +771,7 @@ dependencies = [
     { name = "httpx" },
     { name = "langchain-cerebras" },
     { name = "pydantic-settings" },
+    { name = "regex" },
     { name = "uvicorn" },
 ]
 
@@ -786,6 +787,7 @@ requires-dist = [
     { name = "httpx" },
     { name = "langchain-cerebras", specifier = ">=0.8.2" },
     { name = "pydantic-settings" },
+    { name = "regex" },
     { name = "uvicorn" },
 ]
 

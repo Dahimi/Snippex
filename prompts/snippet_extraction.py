@@ -565,6 +565,8 @@ For each passage:
 - **No overlapping passages**: return distinct, non-overlapping passages.
 - **Short passages**: if `head` and `tail` would overlap, set `tail` identical to `head`.
 - **Empty result**: only return an empty list if the page has truly zero usable content related to the query.
+
+Remember the maximum number of snippets is {max_snippets}. In case you think there two snippets that are close to each other and  worth merging to respect the snippet limit, you can do it. If the snippets are dispersed in the page or doesn't make sense to merge them, return the ones that are most relevant to the query.
 """
 
 

@@ -23,10 +23,8 @@ class CerebrasLLMProvider(LLMProvider):
         truncated_content = page_content[:content_limit]
         messages = get_snippet_extraction_messages(query, truncated_content, max_snippets, search_depth)
         structured_llm = self.llm.with_structured_output(AnchorExtractionResult)
-        print("we are here 3")
         try:
             result = await structured_llm.ainvoke(messages)
-            print(f"we are here 4 for page content {truncated_content[:100]}")
             return result.anchors if result and hasattr(result, 'anchors') else []
         except Exception as e:
             print(f"Cerebras API error: {e}")
