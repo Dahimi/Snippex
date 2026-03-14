@@ -2,7 +2,9 @@ USER_PROMPT_TEMPLATE = """
 QUERY: {query}
 
 PAGE CONTENT:
+[PAGE_CONTENT_START]
 {page_content}
+[PAGE_CONTENT_END]
 """
 
 SHARED_EXAMPLE = """
@@ -17,14 +19,14 @@ GOOD OUTPUT:
 {
   "anchors": [
     {
-      "head": "The Transformer architecture was introduced",
+      "head": "The Transformer architecture was",
       "tail": "to stabilize training.",
       "relevance_score": 0.97
     }
   ]
 }
 
-WHY: The snippet runs from the definition through all the architectural details. Stopping after the first sentence ("...by Vaswani et al.") would be topically relevant but informationally thin — it names the paper but gives the reader nothing to work with about what the architecture actually is or how it works.
+WHY: The snippet runs from the definition through all the architectural details. Stopping after the first sentence ("...by Vaswani et al.") would be topically relevant but informationally thin.
 
 BAD OUTPUT (do not do this):
 {
@@ -55,13 +57,13 @@ GOOD OUTPUT:
   "anchors": [
     {
       "head": "Python was first released",
-      "tail": "Guido van Rossum.",
+      "tail": "van Rossum.",
       "relevance_score": 0.99
     }
   ]
 }
 
-WHY: The query is a single specific fact (the year). The first sentence contains the complete, unambiguous answer. Everything after it — Python's growth, major versions, use cases — is interesting but does not answer the question. Precise mode stops at the exact fact.
+WHY: The query is a single specific fact. The first sentence contains the complete answer.
 
 ---
 
@@ -105,13 +107,13 @@ WHY IT'S BAD: Starts with an irrelevant intro sentence and drags in the variants
 QUERY: "what is the context window of Claude 3 Opus"
 
 PAGE CONTENT (excerpt):
-"...Anthropic has made significant strides in expanding context windows across its model family. Claude 3 Opus supports a context window of 200,000 tokens, making it one of the largest available in any commercial model. For comparison, GPT-4 Turbo offers 128,000 tokens. Researchers working with very long documents, codebases, or legal filings benefit most from these extended windows..."
+"...Anthropic has made significant strides in expanding context windows across its model family. **Claude 3 Opus** supports a context window of 200,000 tokens, making it one of the largest available in any commercial model. For comparison, GPT-4 Turbo offers 128,000 tokens. Researchers working with very long documents, codebases, or legal filings benefit most from these extended windows..."
 
 GOOD OUTPUT:
 {
   "anchors": [
     {
-      "head": "Claude 3 Opus supports",
+      "head": "**Claude 3 Opus** supports",
       "tail": "any commercial model.",
       "relevance_score": 0.99
     }
@@ -136,13 +138,13 @@ GOOD OUTPUT:
   "anchors": [
     {
       "head": "The key innovation is",
-      "tail": "types of relationships...",
+      "tail": "types of relationships.",
       "relevance_score": 0.95
     }
   ]
 }
 
-WHY: Balanced mode skips the intro sentence ("Transformers were introduced in 2017...") — it adds no value for this query. The snippet starts at the actual explanation and runs through the multi-head attention detail. That full paragraph is what someone needs to understand how self-attention works.
+WHY: Balanced mode skips the intro sentence. The snippet starts at the actual explanation and runs through the multi-head attention detail.
 
 ---
 
@@ -165,7 +167,7 @@ GOOD OUTPUT:
     },
     {
       "head": "However, microservices introduce real",
-      "tail": "underestimate this overhead...",
+      "tail": "underestimate this overhead.",
       "relevance_score": 0.91
     }
   ]
@@ -187,7 +189,7 @@ GOOD OUTPUT:
   "anchors": [
     {
       "head": "Both approaches adapt LLMs",
-      "tail": "reasoning style the base model lacks...",
+      "tail": "base model lacks.",
       "relevance_score": 0.97
     }
   ]
@@ -220,7 +222,7 @@ GOOD OUTPUT:
   "anchors": [
     {
       "head": "Choosing the right cloud",
-      "tail": "fault-tolerant workloads...",
+      "tail": "fault-tolerant workloads.",
       "relevance_score": 0.96
     }
   ]
@@ -265,7 +267,7 @@ GOOD OUTPUT:
   "anchors": [
     {
       "head": "The AI industry has",
-      "tail": "vertical niches...",
+      "tail": "vertical niches.",
       "relevance_score": 0.95
     }
   ]
@@ -314,7 +316,7 @@ GOOD OUTPUT:
     },
     {
       "head": "In terms of raw performance,",
-      "tail": "Python is the clear choice...",
+      "tail": "is the clear choice.",
       "relevance_score": 0.94
     }
   ]
@@ -350,7 +352,7 @@ GOOD OUTPUT:
     },
     {
       "head": "Adherence is the most",
-      "tail": "overeating later...",
+      "tail": "leads to overeating later.",
       "relevance_score": 0.85
     }
   ]
@@ -384,7 +386,7 @@ GOOD OUTPUT:
   "anchors": [
     {
       "head": "Understanding the nutritional profile",
-      "tail": "all contain gluten...",
+      "tail": "all contain gluten.",
       "relevance_score": 0.96
     }
   ]
@@ -422,7 +424,7 @@ GOOD OUTPUT:
   "anchors": [
     {
       "head": "Setting up a Kubernetes",
-      "tail": "Prometheus and Grafana...",
+      "tail": "Prometheus and Grafana.",
       "relevance_score": 0.97
     }
   ]
@@ -539,18 +541,30 @@ If the page contains code that is relevant to the query, include the entire code
 ## How to return each passage
 You do NOT write the snippet text directly. Return anchor strings that will be used to locate the passage in the source.
 
+### Anchor Accuracy — CRITICAL
+Your anchors must satisfy the **Zero Hallucination Policy**:
+1. **Verbatim accuracy**: `head` and `tail` must exist character-for-character in the source (between the `[PAGE_CONTENT_START]` and `[PAGE_CONTENT_END]` markers).
+2. **Case sensitivity**: "The" is not "the".
+3. **Punctuation**: "training." is not "training".
+4. **Whitespace**: Spaces, newlines, and tabs must match exactly.
+5. **Markdown Formatting**: Include all formatting characters (e.g., `**`, `_`, `#`, `>`) if they are part of the `head` or `tail`. For example, if a sentence starts with "**Bold Text**", the `head` MUST include the `**` markers.
+6. **No paraphrasing**: Absolutely zero character changes, typo corrections, or modifications.
+7. **Literal Quotes (No Escaping)**: Do NOT add backslashes to escape quotes. If the source says `"godfather"`, your anchor must be `"godfather"`, NOT `\"godfather\"`. The JSON parser handles the JSON-level escaping; you must provide the RAW string.
+8. **No ellipses**: Do NOT include `...` in your anchors unless the literal text in the source contains three dots.
+
+**Procedure**: Once you select a passage, visually re-read the `head` and `tail` against the source text to ensure an exact character match before outputting them.
+
 For each passage:
 1. **head**: The EXACT first 3-4 words of the passage, verbatim from the source. Use 4 words if 3 are not distinctive enough to be unique on the page
 2. **tail**: The EXACT last 3-4 words of the passage, verbatim from the source. Use 4 words if 3 are not distinctive enough to be unique on the page
 3. **relevance_score**: Float 0.0–1.0 — how useful this passage is for answering the query (not just how topically related it is). Ask: "How much does this passage contribute to a downstream LLM's ability to answer the query correctly and completely?"
 
-## Anchor rules — critical
-- **Verbatim accuracy**: head and tail must exist character-for-character in the source. No paraphrasing, no typo corrections, no modifications whatsoever
-- **Uniqueness**: head and tail must each be unique within the page. If 3 words appear multiple times, use 4
-- **Sentence boundaries**: head must begin at a sentence start; tail must end at a sentence end including its punctuation
-- **No overlapping passages**: return distinct, non-overlapping passages
-- **Short passages**: if head and tail would overlap, set tail identical to head
-- **Empty result**: only return an empty list if the page has truly zero usable content related to the query
+## Anchor rules
+- **Uniqueness**: `head` and `tail` must each be unique within the page. If 3 words appear multiple times, use 4.
+- **Sentence boundaries**: `head` must begin at a sentence start; `tail` must end at a sentence end including its punctuation.
+- **No overlapping passages**: return distinct, non-overlapping passages.
+- **Short passages**: if `head` and `tail` would overlap, set `tail` identical to `head`.
+- **Empty result**: only return an empty list if the page has truly zero usable content related to the query.
 """
 
 
