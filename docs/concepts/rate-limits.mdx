@@ -1,0 +1,38 @@
+---
+title: Rate Limits
+description: Understanding Snipex API rate limits and credits
+---
+
+## Credits
+
+Snipex uses a **credit-based system**. Each successful call to `POST /search` consumes **1 credit**, regardless of the number of results or snippets returned.
+
+New accounts receive **100 free credits** to start — no credit card required.
+
+Check your remaining credits anytime in the [dashboard](https://snipex.com/dashboard).
+
+## Rate limits
+
+Rate limits are applied per API key to ensure fair usage.
+
+| Plan | Requests / hour |
+|---|---|
+| Free (early access) | 100 |
+
+<Info>
+  Pricing tiers are being finalized. Contact [hello@snipex.com](mailto:hello@snipex.com) if you need higher limits during early access.
+</Info>
+
+## Error responses
+
+When you exceed the rate limit, the API returns:
+
+```json HTTP 429
+{
+  "detail": "Rate limit exceeded."
+}
+```
+
+## Playground limits
+
+The interactive [Playground](https://snipex.com/playground) has separate, lower limits for unauthenticated users (5 requests/hour per IP). Sign in to use your account's full limit in the playground.

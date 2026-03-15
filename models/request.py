@@ -10,3 +10,4 @@ class SearchRequest(BaseModel):
     include_domains: List[str] = Field(default_factory=list)
     exclude_domains: List[str] = Field(default_factory=list)
     search_depth: str = "balanced"  # "precise" | "balanced" | "exhaustive"
+    debug: bool = False

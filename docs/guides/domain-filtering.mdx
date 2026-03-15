@@ -1,0 +1,40 @@
+---
+title: Domain Filtering
+description: Restrict or exclude specific domains from search results
+---
+
+Snipex lets you control which domains appear in your results using `include_domains` and `exclude_domains`.
+
+## Include specific domains
+
+Use `include_domains` to restrict results to a set of trusted sources:
+
+```json
+{
+  "query": "climate change effects on agriculture",
+  "include_domains": ["nature.com", "science.org", "who.int"]
+}
+```
+
+Only results from the listed domains will be returned.
+
+## Exclude specific domains
+
+Use `exclude_domains` to filter out domains you don't want:
+
+```json
+{
+  "query": "best programming languages 2024",
+  "exclude_domains": ["reddit.com", "quora.com"]
+}
+```
+
+## Combine both
+
+You can use `include_domains` and `exclude_domains` independently. They cannot be combined in the same request (include takes precedence if both are provided).
+
+## Notes
+
+- Provide bare domain names without `https://` or trailing slashes: `"nature.com"` not `"https://www.nature.com/"`
+- Subdomains are matched: `"bbc.com"` will include `"news.bbc.com"`
+- An empty array (`[]`) means no filter is applied (default behavior)

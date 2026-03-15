@@ -1,0 +1,50 @@
+---
+title: Authentication
+description: How to authenticate requests to the Snipex API
+---
+
+All requests to the Snipex API must include a valid API key in the `Authorization` header.
+
+## Getting a key
+
+1. Sign in at [snipex.com/dashboard](https://snipex.com/dashboard)
+2. Click **New key**
+3. Give it a name and click **Create**
+4. Copy the full key — it's only shown once
+
+Keys are prefixed with `snx_`.
+
+## Using your key
+
+Pass it as a Bearer token in every request:
+
+```bash
+Authorization: Bearer snx_your_api_key
+```
+
+**Example:**
+
+```bash
+curl -X POST https://api.snipex.com/search \
+  -H "Authorization: Bearer snx_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "..."}'
+```
+
+## Security best practices
+
+<Warning>
+  Never expose your API key in client-side code, public repositories, or logs.
+</Warning>
+
+- Store keys in environment variables, not hardcoded in source code
+- Use one key per application or environment (staging vs. production)
+- Rotate keys immediately if you suspect they've been compromised — delete the old one from the dashboard and create a new one
+- On the server side, pass requests through a backend proxy rather than calling Snipex directly from the browser
+
+## Errors
+
+| Status | Meaning |
+|---|---|
+| `401 Unauthorized` | Missing, invalid, or revoked API key |
+| `429 Too Many Requests` | Rate limit exceeded — see [Rate Limits](/concepts/rate-limits) |

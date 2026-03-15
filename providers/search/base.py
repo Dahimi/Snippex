@@ -8,6 +8,8 @@ class RawSearchResult(BaseModel):
     title: str
     snippet: str
     content: str  # Raw page content from search backend
+    publish_date: Optional[str] = None
+    last_updated: Optional[str] = None
 
 class SearchProvider(ABC):
     @abstractmethod

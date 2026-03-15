@@ -1,0 +1,59 @@
+---
+title: Snippets
+description: Understanding the snippet object and relevance scoring
+---
+
+A **snippet** is a verbatim passage extracted from a source page that is relevant to your query. Each search result can contain multiple snippets.
+
+## Snippet object
+
+```json
+{
+  "text": "Quantum error correction improves exponentially as the system scales, a key milestone toward fault-tolerant quantum computing.",
+  "relevance_score": 0.94
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `text` | `string` | Verbatim passage from the source page |
+| `relevance_score` | `float` | Relevance to your query, from `0.0` (low) to `1.0` (high) |
+
+## Relevance score
+
+The relevance score reflects how closely a snippet answers your specific query — not just how related the topic is.
+
+A score of `0.9+` means the passage directly addresses your query. A score below `0.6` means the passage is topically related but may not be a direct answer.
+
+**Practical guidance:**
+- For RAG pipelines: filter to snippets with `relevance_score >= 0.7`
+- For display: show all snippets — let users judge
+- For strict fact retrieval: use `precise` depth + filter to `>= 0.85`
+
+## Snippet count
+
+Control how many snippets are extracted per result with `max_snippets_per_result` (default: 3, range: 1–5).
+
+```json
+{
+  "query": "...",
+  "max_snippets_per_result": 5
+}
+```
+
+Note that the actual number returned may be lower than the maximum if the page doesn't contain enough relevant passages.
+
+## The `warning` field
+
+Each result has an optional `warning` field. It's set when extraction succeeded but with caveats — for example, if the page content was too short or if some passages couldn't be reconstructed verbatim.
+
+```json
+{
+  "rank": 2,
+  "url": "...",
+  "snippets": [],
+  "warning": "Found relevant passages but failed to reconstruct them verbatim."
+}
+```
+
+When `warning` is set and `snippets` is empty, the result still appears in the list for transparency — you can decide whether to use the URL directly.

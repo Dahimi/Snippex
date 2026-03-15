@@ -11,6 +11,7 @@ dependencies = [
     "httpx",
     "langchain-cerebras>=0.8.2",
     "regex",
+    "supabase",
 ]
 
 [dependency-groups]

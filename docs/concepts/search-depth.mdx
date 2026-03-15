@@ -1,0 +1,44 @@
+---
+title: Search Depth
+description: Choose between precise, balanced, and exhaustive extraction modes
+---
+
+The `search_depth` parameter controls how Snipex's extraction engine approaches each page. It's a trade-off between **speed**, **coverage**, and **confidence**.
+
+## Modes
+
+<CardGroup cols={3}>
+  <Card title="precise" icon="crosshairs">
+    Focuses on the highest-confidence matches. Returns fewer snippets but with tighter relevance. Fastest mode.
+  </Card>
+  <Card title="balanced" icon="scale-balanced">
+    The default. A good mix of speed, coverage, and confidence — suitable for most use cases.
+  </Card>
+  <Card title="exhaustive" icon="magnifying-glass">
+    Maximises the number of snippets extracted per page. Best when you need comprehensive coverage at the cost of slightly more latency.
+  </Card>
+</CardGroup>
+
+## When to use each
+
+| Use case | Recommended depth |
+|---|---|
+| Quick answer / fact lookup | `precise` |
+| General-purpose RAG pipeline | `balanced` |
+| Research / comprehensive coverage | `exhaustive` |
+| Real-time UX (latency-sensitive) | `precise` |
+| Offline batch processing | `exhaustive` |
+
+## Example
+
+```json
+{
+  "query": "how does CRISPR gene editing work",
+  "search_depth": "exhaustive",
+  "num_results": 5
+}
+```
+
+## Effect on `max_snippets_per_result`
+
+`search_depth` works in conjunction with `max_snippets_per_result` (default: 3, max: 5). In `exhaustive` mode, the engine will try harder to find up to the maximum number of snippets per page. In `precise` mode, it may return fewer snippets than the maximum if confidence thresholds aren't met.

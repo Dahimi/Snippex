@@ -48,37 +48,40 @@ class SearchService:
             for anchor in anchors:
                 text = reconstruct_snippet(raw_result.content, anchor)
                 if text:
-                    snippets.append(Snippet(
+                    # Only include head/tail if debug is on
+                    s = Snippet(
                         text=text,
                         relevance_score=anchor.relevance_score,
-                        head=anchor.head,
-                        tail=anchor.tail
-                    ))
+                    )
+                    if request.debug:
+                        s.head = anchor.head
+                        s.tail = anchor.tail
+                    snippets.append(s)
             
             # If we had anchors but none could be reconstructed
             if anchors and not snippets and not warning:
                 warning = "Found relevant passages but failed to reconstruct them verbatim (LLM hallucinated anchors)."
-            elif not anchors and not warning:
-                # Optional: maybe the page just wasn't relevant
-                pass
 
-            final_results.append(SearchResult(
+            res = SearchResult(
                 rank=i + 1,
                 url=raw_result.url,
                 title=raw_result.title,
-                google_snippet=raw_result.snippet,
                 snippets=snippets,
-                warning=warning
-            ))
+                warning=warning,
+                publish_date=raw_result.publish_date,
+                last_updated=raw_result.last_updated,
+            )
+            
+            if request.debug:
+                res.search_snippet = raw_result.snippet
+                res.original_content = raw_result.content
+                
+            final_results.append(res)
             
         latency_ms = int((time.time() - start_time) * 1000)
         
         return SearchResponse(
             query=request.query,
             results=final_results,
-            search_backend=self.search_provider.name,
-            llm_provider=self.llm_provider.name,
             total_latency_ms=latency_ms,
-            search_latency_ms=search_latency_ms,
-            llm_latency_ms=llm_latency_ms
         )

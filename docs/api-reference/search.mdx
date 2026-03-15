@@ -1,0 +1,182 @@
+---
+title: POST /search
+description: Extract relevant snippets from web search results
+---
+
+<Note>
+  All requests require an API key. See [Authentication](/authentication).
+</Note>
+
+```
+POST https://api.snipex.com/search
+```
+
+## Request body
+
+<ParamField body="query" type="string" required>
+  The search query. This is what Snipex searches for and extracts snippets relevant to.
+</ParamField>
+
+<ParamField body="num_results" type="integer" default="5">
+  Number of search results to retrieve and extract from. Range: `1`–`10`.
+</ParamField>
+
+<ParamField body="max_snippets_per_result" type="integer" default="3">
+  Maximum number of snippets to extract per result. Range: `1`–`5`.
+
+  The actual number returned may be lower if the page doesn't contain enough relevant passages.
+</ParamField>
+
+<ParamField body="search_depth" type="string" default="balanced">
+  Controls how deeply the extraction engine analyzes each page.
+
+  - `"precise"` — fewer snippets, higher confidence, fastest
+  - `"balanced"` — default, good mix of speed and coverage
+  - `"exhaustive"` — maximum snippets, most thorough
+
+  See [Search Depth](/concepts/search-depth) for details.
+</ParamField>
+
+<ParamField body="recency" type="string">
+  Filter results by publish date. One of: `"day"`, `"week"`, `"month"`, `"year"`.
+
+  Omit or set to `null` for no filter (default).
+</ParamField>
+
+<ParamField body="language" type="string" default="en">
+  Language code for results (e.g. `"en"`, `"fr"`, `"de"`).
+</ParamField>
+
+<ParamField body="include_domains" type="string[]" default="[]">
+  Restrict results to these domains only. Pass bare domain names: `["nature.com", "bbc.com"]`.
+</ParamField>
+
+<ParamField body="exclude_domains" type="string[]" default="[]">
+  Exclude these domains from results. Pass bare domain names: `["reddit.com"]`.
+</ParamField>
+
+<ParamField body="debug" type="boolean" default="false">
+  When `true`, adds `original_content`, `search_snippet`, `head`, and `tail` fields to the response.
+
+  **Do not use in production** — `original_content` can be very large.
+</ParamField>
+
+---
+
+## Response
+
+<ResponseField name="query" type="string">
+  The query string from your request, echoed back.
+</ResponseField>
+
+<ResponseField name="results" type="SearchResult[]">
+  Ranked array of search results, each containing extracted snippets.
+
+  <Expandable title="SearchResult fields">
+    <ResponseField name="rank" type="integer">
+      Position in the result list, starting at `1`.
+    </ResponseField>
+    <ResponseField name="url" type="string">
+      URL of the source page.
+    </ResponseField>
+    <ResponseField name="title" type="string">
+      Title of the source page.
+    </ResponseField>
+    <ResponseField name="snippets" type="Snippet[]">
+      Extracted passages from this page.
+
+      <Expandable title="Snippet fields">
+        <ResponseField name="text" type="string">
+          Verbatim passage from the source page.
+        </ResponseField>
+        <ResponseField name="relevance_score" type="float">
+          How relevant this passage is to your query. Range: `0.0`–`1.0`.
+        </ResponseField>
+        <ResponseField name="head" type="string">
+          *(debug only)* First few words used to locate the passage.
+        </ResponseField>
+        <ResponseField name="tail" type="string">
+          *(debug only)* Last few words used to anchor the passage end.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="warning" type="string | null">
+      Set if extraction partially failed for this result. The result is still returned for transparency.
+    </ResponseField>
+    <ResponseField name="publish_date" type="string | null">
+      ISO 8601 date string if available from the source page.
+    </ResponseField>
+    <ResponseField name="last_updated" type="string | null">
+      ISO 8601 date string if available from the source page.
+    </ResponseField>
+    <ResponseField name="search_snippet" type="string | null">
+      *(debug only)* The short description originally associated with this result.
+    </ResponseField>
+    <ResponseField name="original_content" type="string | null">
+      *(debug only)* Full page content that was analyzed.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="total_latency_ms" type="integer">
+  Total time taken for the request, in milliseconds.
+</ResponseField>
+
+---
+
+## Example
+
+<CodeGroup>
+
+```bash Request
+curl -X POST https://api.snipex.com/search \
+  -H "Authorization: Bearer snx_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "how does CRISPR gene editing work",
+    "num_results": 2,
+    "search_depth": "balanced",
+    "recency": "year"
+  }'
+```
+
+```json Response
+{
+  "query": "how does CRISPR gene editing work",
+  "results": [
+    {
+      "rank": 1,
+      "url": "https://example.com/crispr-explainer",
+      "title": "CRISPR-Cas9: A Simple Guide to Gene Editing",
+      "snippets": [
+        {
+          "text": "CRISPR-Cas9 works by using a guide RNA to direct the Cas9 protein to a specific location in the genome, where it makes a precise cut in the DNA double helix.",
+          "relevance_score": 0.97
+        },
+        {
+          "text": "Once the DNA is cut, the cell's natural repair mechanisms can be used to delete, correct, or insert genetic material at the target site.",
+          "relevance_score": 0.89
+        }
+      ],
+      "warning": null,
+      "publish_date": "2024-03-12",
+      "last_updated": null
+    }
+  ],
+  "total_latency_ms": 921
+}
+```
+
+</CodeGroup>
+
+---
+
+## Error codes
+
+| Status | Meaning |
+|---|---|
+| `400 Bad Request` | Missing or invalid `query` field |
+| `401 Unauthorized` | Missing or invalid API key |
+| `422 Unprocessable Entity` | Request body failed validation — check parameter types and ranges |
+| `429 Too Many Requests` | Rate limit exceeded |
+| `500 Internal Server Error` | Unexpected server-side error |

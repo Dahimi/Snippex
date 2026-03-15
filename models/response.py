@@ -29,15 +29,16 @@ class SearchResult(BaseModel):
     rank: int
     url: str
     title: str
-    google_snippet: str        # original short snippet from search backend
     snippets: List[Snippet]    # our reconstructed relevant passages
     warning: Optional[str] = None  # set if extraction or reconstruction partially failed
+    publish_date: Optional[str] = None
+    last_updated: Optional[str] = None
+
+    # Debug fields (only populated if debug=true)
+    search_snippet: Optional[str] = None   # original snippet from search backend
+    original_content: Optional[str] = None
 
 class SearchResponse(BaseModel):
     query: str
     results: List[SearchResult]
-    search_backend: str        # e.g. "perplexity"
-    llm_provider: str          # e.g. "cerebras"
     total_latency_ms: int
-    search_latency_ms: int
-    llm_latency_ms: int

@@ -1,0 +1,28 @@
+---
+title: GET /health
+description: Check the API status
+---
+
+A simple liveness endpoint. Returns `200 OK` if the API is up.
+
+```
+GET https://api.snipex.com/health
+```
+
+No authentication required.
+
+## Response
+
+```json
+{
+  "status": "ok"
+}
+```
+
+## Example
+
+```bash
+curl https://api.snipex.com/health
+```
+
+Useful for uptime monitoring, health checks in deployment pipelines, or confirming connectivity before sending requests.

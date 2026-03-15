@@ -1,0 +1,35 @@
+---
+title: Recency Filtering
+description: Filter results by how recently they were published
+---
+
+Use the `recency` parameter to limit results to content published within a recent time window.
+
+## Values
+
+| Value | Description |
+|---|---|
+| `"day"` | Published in the last 24 hours |
+| `"week"` | Published in the last 7 days |
+| `"month"` | Published in the last 30 days |
+| `"year"` | Published in the last 365 days |
+| `null` | No filter — all results regardless of date (default) |
+
+## Example
+
+```json
+{
+  "query": "AI regulation news",
+  "recency": "week"
+}
+```
+
+## When to use it
+
+- **News and current events** — use `"day"` or `"week"` to stay up to date
+- **Research with freshness requirements** — use `"month"` or `"year"`
+- **Evergreen topics** — omit `recency` entirely for maximum coverage
+
+<Note>
+  Recency filtering depends on the publish date metadata available for each page. Some pages don't expose this metadata clearly, so a small number of results may slip through the filter.
+</Note>

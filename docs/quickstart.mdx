@@ -1,0 +1,128 @@
+---
+title: Quickstart
+description: Make your first Snipex API call in under 2 minutes
+---
+
+## 1. Get your API key
+
+Sign up at [snipex.com/dashboard](https://snipex.com/dashboard) and create an API key. Keys are prefixed with `snx_`.
+
+---
+
+## 2. Make your first request
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://api.snipex.com/search \
+  -H "Authorization: Bearer snx_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "latest advances in quantum computing",
+    "num_results": 3,
+    "search_depth": "balanced"
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://api.snipex.com/search",
+    headers={"Authorization": "Bearer snx_your_api_key"},
+    json={
+        "query": "latest advances in quantum computing",
+        "num_results": 3,
+        "search_depth": "balanced",
+    },
+)
+
+data = response.json()
+for result in data["results"]:
+    print(result["title"])
+    for snippet in result["snippets"]:
+        print(f"  [{snippet['relevance_score']:.0%}] {snippet['text'][:120]}")
+```
+
+```javascript JavaScript
+const response = await fetch("https://api.snipex.com/search", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer snx_your_api_key",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    query: "latest advances in quantum computing",
+    num_results: 3,
+    search_depth: "balanced",
+  }),
+});
+
+const data = await response.json();
+data.results.forEach((result) => {
+  console.log(result.title);
+  result.snippets.forEach((s) =>
+    console.log(`  [${Math.round(s.relevance_score * 100)}%] ${s.text.slice(0, 120)}`)
+  );
+});
+```
+
+</CodeGroup>
+
+---
+
+## 3. Understand the response
+
+```json
+{
+  "query": "latest advances in quantum computing",
+  "results": [
+    {
+      "rank": 1,
+      "url": "https://example.com/quantum-2024",
+      "title": "Quantum Computing Breakthroughs in 2024",
+      "snippets": [
+        {
+          "text": "IBM's Condor processor achieved over 1,000 qubits with a significantly lower error rate than previous generations...",
+          "relevance_score": 0.96
+        },
+        {
+          "text": "Google's Willow chip demonstrated quantum error correction that improves exponentially as the system scales.",
+          "relevance_score": 0.91
+        }
+      ],
+      "publish_date": "2024-12-15"
+    }
+  ],
+  "total_latency_ms": 847
+}
+```
+
+Each `snippet` contains:
+- **`text`** — a verbatim passage from the source page
+- **`relevance_score`** — how relevant this passage is to your query (0.0–1.0)
+
+---
+
+## 4. Try the playground
+
+Don't want to write code yet? Try the live [Playground](https://snipex.com/playground) to experiment with queries, see real results, and copy the equivalent code.
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key" href="/authentication">
+    Learn how API keys work and how to keep them secure
+  </Card>
+  <Card title="Search depth" icon="sliders" href="/concepts/search-depth">
+    When to use precise vs. exhaustive mode
+  </Card>
+  <Card title="Domain filtering" icon="filter" href="/guides/domain-filtering">
+    Restrict or exclude specific domains
+  </Card>
+  <Card title="Full API reference" icon="code" href="/api-reference/search">
+    Every parameter and response field documented
+  </Card>
+</CardGroup>

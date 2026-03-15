@@ -1,0 +1,60 @@
+---
+title: Debug Mode
+description: Inspect extraction internals with debug=true
+---
+
+Setting `debug: true` in your request adds extra fields to the response that expose what Snipex saw and extracted from each page. Useful for understanding why certain snippets were or weren't returned.
+
+## Extra fields on each result
+
+| Field | Description |
+|---|---|
+| `search_snippet` | The short description originally associated with this result |
+| `original_content` | The full page content Snipex extracted and ran through its engine |
+
+## Extra fields on each snippet
+
+| Field | Description |
+|---|---|
+| `head` | First few words used to locate the passage in the source |
+| `tail` | Last few words used to anchor the passage end |
+
+## Example request
+
+```json
+{
+  "query": "how does photosynthesis work",
+  "num_results": 2,
+  "debug": true
+}
+```
+
+## Example response (debug fields highlighted)
+
+```json
+{
+  "query": "how does photosynthesis work",
+  "results": [
+    {
+      "rank": 1,
+      "url": "https://example.com/photosynthesis",
+      "title": "Photosynthesis Explained",
+      "snippets": [
+        {
+          "text": "Plants convert sunlight into chemical energy using chlorophyll...",
+          "relevance_score": 0.95,
+          "head": "Plants convert sunlight",
+          "tail": "using chlorophyll"
+        }
+      ],
+      "search_snippet": "Photosynthesis is the process by which...",
+      "original_content": "Photosynthesis is a process used by plants and other organisms..."
+    }
+  ],
+  "total_latency_ms": 912
+}
+```
+
+<Warning>
+  `original_content` can be very large (up to several thousand words per result). Do not use `debug: true` in production — it's for development and troubleshooting only.
+</Warning>

@@ -1,0 +1,57 @@
+---
+title: Introduction
+description: What Snipex is and why it exists
+---
+
+## What is Snipex?
+
+Snipex is a **search API that returns relevant text snippets** from each result — not just URLs and titles.
+
+When you run a web search, you get back a list of links. To actually use that information in an application, you have to fetch and parse each page, extract the relevant parts, and rank them — all of which takes time, infrastructure, and significant engineering effort.
+
+Snipex does all of that in a single API call.
+
+```bash
+POST https://api.snipex.com/search
+```
+
+You send a query. You get back ranked results, each containing **verbatim passages** from the source page that are relevant to your query, along with a relevance score.
+
+---
+
+## What you can build
+
+- **AI pipelines** — feed grounded, relevant content directly into your prompts instead of raw web pages
+- **Research tools** — surface specific information from across the web without building a crawler
+- **Knowledge bases** — ingest fresh, sourced content at query time
+- **Answer engines** — build products that cite and quote their sources
+
+---
+
+## How it differs from a standard search API
+
+| | Standard search API | Snipex |
+|---|---|---|
+| Returns | URLs, titles, short descriptions | URLs, titles + **verbatim relevant passages** |
+| Requires page fetching | Yes — you must crawl each result | No — content is extracted for you |
+| Relevance scoring | Result-level | **Snippet-level** (0.0–1.0 per passage) |
+| Ready for RAG/AI use | No — needs preprocessing | Yes — plug directly into prompts |
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="bolt" href="/quickstart">
+    Make your first API call in under 2 minutes
+  </Card>
+  <Card title="Authentication" icon="key" href="/authentication">
+    Get your API key and authenticate requests
+  </Card>
+  <Card title="Search depth" icon="sliders" href="/concepts/search-depth">
+    Understand precise, balanced, and exhaustive modes
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/search">
+    Full parameter and response documentation
+  </Card>
+</CardGroup>

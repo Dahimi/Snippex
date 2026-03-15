@@ -11,6 +11,13 @@ class Settings(BaseSettings):
     CEREBRAS_BASE_URL: str = "https://api.cerebras.ai/v1"
     CEREBRAS_MODEL: str = os.getenv("CEREBRAS_MODEL", "gpt-oss-120b")
     
+    # Supabase (for API key validation)
+    SUPABASE_URL: str
+    SUPABASE_SERVICE_ROLE_KEY: str
+
+    # Internal service key — used by the web app's playground proxy
+    INTERNAL_SERVICE_KEY: str
+
     # Project Settings
     DEFAULT_NUM_RESULTS: int = 5
     MAX_NUM_RESULTS: int = 10

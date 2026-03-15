@@ -4,6 +4,7 @@ from models.response import SearchResponse
 from providers.search.perplexity import PerplexitySearchProvider
 from providers.llm.cerebras import CerebrasLLMProvider
 from services.search_service import SearchService
+from auth.api_key import verify_api_key
 from config import settings
 
 app = FastAPI(
@@ -25,7 +26,8 @@ async def health_check():
 @app.post("/search", response_model=SearchResponse)
 async def search(
     request: SearchRequest,
-    service: SearchService = Depends(get_search_service)
+    service: SearchService = Depends(get_search_service),
+    _user_id: str = Depends(verify_api_key),
 ):
     try:
         response = await service.search_and_extract(request)
