@@ -30,13 +30,13 @@ class SearchResult(BaseModel):
     url: str
     title: str
     snippets: List[Snippet]    # our reconstructed relevant passages
-    warning: Optional[str] = None  # set if extraction or reconstruction partially failed
     publish_date: Optional[str] = None
     last_updated: Optional[str] = None
 
-    # Debug fields (only populated if debug=true)
-    search_snippet: Optional[str] = None   # original snippet from search backend
-    original_content: Optional[str] = None
+    # Internal fields — never serialised in API responses
+    warning: Optional[str] = Field(default=None, exclude=True)
+    search_snippet: Optional[str] = Field(default=None, exclude=True)
+    original_content: Optional[str] = Field(default=None, exclude=True)
 
 class SearchResponse(BaseModel):
     query: str

@@ -5,7 +5,7 @@ import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from "@cl
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 
-const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL ?? "https://docs.snipex.com";
+const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL ?? "https://docs.snippex.com";
 
 const navLinks = [
   { href: "/playground", label: "Playground" },
@@ -23,7 +23,7 @@ export default function Navbar() {
           href="/"
           className="font-mono text-lg font-semibold tracking-tight text-zinc-50 hover:text-white transition-colors"
         >
-          snipex
+          snippex
           <span className="text-indigo-400">.</span>
         </Link>
 

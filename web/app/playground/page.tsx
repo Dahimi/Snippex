@@ -10,11 +10,10 @@ import {
   ChevronDown,
   ChevronUp,
   Info,
-  Copy,
-  Check,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import CodeBlock from "@/components/CodeBlock";
 import { searchViaProxy } from "@/lib/api";
 import type { SearchResponse, SearchDepth, Recency, SearchRequest } from "@/lib/api";
 import clsx from "clsx";
@@ -29,7 +28,7 @@ function buildCurl(req: SearchRequest): string {
     null,
     2
   );
-  return `curl -X POST https://api.snipex.com/search \\
+  return `curl -X POST https://api.snippex.com/search \\
   -H "Authorization: Bearer snx_your_api_key" \\
   -H "Content-Type: application/json" \\
   -d '${body}'`;
@@ -44,7 +43,7 @@ function buildPython(req: SearchRequest): string {
   return `import requests
 
 response = requests.post(
-    "https://api.snipex.com/search",
+    "https://api.snippex.com/search",
     headers={"Authorization": "Bearer snx_your_api_key"},
     json=${body},
 )
@@ -62,7 +61,7 @@ function buildJavaScript(req: SearchRequest): string {
     null,
     2
   );
-  return `const response = await fetch("https://api.snipex.com/search", {
+  return `const response = await fetch("https://api.snippex.com/search", {
   method: "POST",
   headers: {
     "Authorization": "Bearer snx_your_api_key",
@@ -117,13 +116,6 @@ function ResultCard({ result }: { result: SearchResponse["results"][number] }) {
         </button>
       </div>
 
-      {result.warning && (
-        <div className="mx-4 mb-3 flex items-start gap-2 rounded-lg border border-amber-900/40 bg-amber-900/10 px-3 py-2 text-xs text-amber-400">
-          <AlertCircle size={14} className="mt-0.5 shrink-0" />
-          {result.warning}
-        </div>
-      )}
-
       {expanded && (
         <div className="space-y-2 px-4 pb-4">
           {result.snippets.length === 0 ? (
@@ -156,23 +148,6 @@ function ResultCard({ result }: { result: SearchResponse["results"][number] }) {
   );
 }
 
-function CopyButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false);
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-  return (
-    <button
-      onClick={handleCopy}
-      className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors"
-    >
-      {copied ? <Check size={12} /> : <Copy size={12} />}
-      {copied ? "Copied" : "Copy"}
-    </button>
-  );
-}
 
 // ---------------------------------------------------------------------------
 // Output tabs
@@ -248,15 +223,11 @@ function OutputPanel({
 
       {/* JSON tab */}
       {tab === "json" && (
-        <div className="relative rounded-xl border border-zinc-800 bg-zinc-950 overflow-hidden">
-          <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-2">
-            <span className="font-mono text-xs text-zinc-500">json</span>
-            <CopyButton text={JSON.stringify(result, null, 2)} />
-          </div>
-          <pre className="overflow-x-auto p-4 text-xs leading-relaxed text-zinc-200 max-h-[600px] overflow-y-auto">
-            {JSON.stringify(result, null, 2)}
-          </pre>
-        </div>
+        <CodeBlock
+          code={JSON.stringify(result, null, 2)}
+          language="json"
+          maxHeight="600px"
+        />
       )}
 
       {/* Code tab */}
@@ -280,15 +251,10 @@ function OutputPanel({
             ))}
           </div>
 
-          <div className="relative rounded-xl border border-zinc-800 bg-zinc-950 overflow-hidden">
-            <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-2">
-              <span className="font-mono text-xs text-zinc-500">{codeLang}</span>
-              <CopyButton text={codeMap[codeLang]} />
-            </div>
-            <pre className="overflow-x-auto p-4 text-xs leading-relaxed text-zinc-200">
-              <code>{codeMap[codeLang]}</code>
-            </pre>
-          </div>
+          <CodeBlock
+            code={codeMap[codeLang]}
+            language={codeLang === "curl" ? "bash" : codeLang}
+          />
         </div>
       )}
     </div>
@@ -361,7 +327,7 @@ export default function PlaygroundPage() {
         <div className="mb-8">
           <h1 className="text-2xl font-semibold text-zinc-50">Playground</h1>
           <p className="mt-1 text-sm text-zinc-400">
-            Try the Snipex API live. See exactly what your application will receive.
+            Try the Snippex API live. See exactly what your application will receive.
           </p>
         </div>
 

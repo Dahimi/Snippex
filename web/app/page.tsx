@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
 
-const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL ?? "https://docs.snipex.com";
+const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL ?? "https://docs.snippex.com";
 import { ArrowRight, Zap, Search, Code2, ChevronRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CodeBlock from "@/components/CodeBlock";
 
-const REQUEST_EXAMPLE = `curl -X POST https://api.snipex.com/search \\
+const REQUEST_EXAMPLE = `curl -X POST https://api.snippex.com/search \\
   -H "Authorization: Bearer snx_your_api_key" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -46,15 +46,15 @@ milestone in the field.",
 const features = [
   {
     icon: Search,
-    title: "Relevant passages, not links",
+    title: "Deep snippets, not surface excerpts",
     description:
-      "Snipex extracts the exact sentences that answer your query — not just page titles and URLs you have to crawl yourself.",
+      "Other search APIs return the short blurb shown in Google results. Snippex digs into the actual page and extracts the passages that directly answer your query.",
   },
   {
     icon: Zap,
     title: "Proprietary extraction engine",
     description:
-      "Our engine identifies and extracts the most relevant passages from each page with high precision, grounded entirely in source content.",
+      "Our extraction algorithm identifies and pulls the most relevant passages from each page with high precision — grounded entirely in source content, not summaries.",
   },
   {
     icon: Code2,
@@ -75,13 +75,13 @@ const steps = [
     number: "02",
     title: "We fetch and extract",
     description:
-      "Snipex crawls the web, retrieves page content, and runs it through our extraction engine to surface the passages most relevant to your query.",
+      "Snippex crawls the web, retrieves full page content, and runs it through our proprietary extraction engine to surface the passages most relevant to your query.",
   },
   {
     number: "03",
     title: "Get ranked snippets",
     description:
-      "Receive structured JSON with ranked results, each containing verbatim relevant passages scored by relevance.",
+      "Receive structured JSON with ranked results, each containing verbatim relevant passages scored by relevance — ready to use, no post-processing needed.",
   },
 ];
 
@@ -104,10 +104,10 @@ export default function LandingPage() {
           </h1>
 
           <p className="mx-auto mb-10 max-w-2xl text-lg text-zinc-400 leading-relaxed">
-            Snipex is a search API that returns the{" "}
+            Snippex is a search API that returns the{" "}
             <strong className="text-zinc-200">exact relevant passages</strong>{" "}
-            from each result — not just URLs and titles. Build smarter AI
-            pipelines, research tools, and knowledge systems without scraping.
+            from inside each page — not the surface-level excerpts other APIs give you.
+            Build smarter AI pipelines, research tools, and knowledge systems without scraping.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -150,7 +150,7 @@ export default function LandingPage() {
         <section className="border-t border-zinc-800 py-20">
           <div className="mx-auto max-w-6xl px-4">
             <h2 className="mb-12 text-center text-2xl font-semibold text-zinc-50">
-              Built for developers who need real content
+              What makes Snippex different
             </h2>
             <div className="grid gap-6 sm:grid-cols-3">
               {features.map(({ icon: Icon, title, description }) => (

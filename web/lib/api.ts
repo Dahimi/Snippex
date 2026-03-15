@@ -1,5 +1,5 @@
 /**
- * Snipex API — single source of truth for all types and fetch functions.
+ * Snippex API — single source of truth for all types and fetch functions.
  * If the backend contract changes, update only this file.
  *
  * Backend: POST /search  (FastAPI, see models/request.py + models/response.py)
@@ -19,9 +19,8 @@ export interface SearchRequest {
   recency?: Recency | null;
   language?: string;              // default "en"
   include_domains?: string[];
-  exclude_domains?: string[];     // NOTE: accepted by backend but not yet forwarded to Perplexity
+  exclude_domains?: string[];
   search_depth?: SearchDepth;     // default "balanced"
-  debug?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -31,8 +30,6 @@ export interface SearchRequest {
 export interface Snippet {
   text: string;
   relevance_score: number;  // 0.0–1.0
-  head?: string | null;     // populated only when debug=true
-  tail?: string | null;     // populated only when debug=true
 }
 
 export interface SearchResult {
@@ -40,12 +37,8 @@ export interface SearchResult {
   url: string;
   title: string;
   snippets: Snippet[];
-  warning?: string | null;
   publish_date?: string | null;
   last_updated?: string | null;
-  // Debug-only fields
-  search_snippet?: string | null;
-  original_content?: string | null;
 }
 
 export interface SearchResponse {
@@ -66,7 +59,7 @@ export interface HealthResponse {
 // Fetch helpers
 // ---------------------------------------------------------------------------
 
-/** Base URL for the Snipex backend — set via NEXT_PUBLIC_SNIPEX_API_URL */
+/** Base URL for the Snippex backend — set via NEXT_PUBLIC_SNIPEX_API_URL */
 function getApiBase(): string {
   const base = process.env.NEXT_PUBLIC_SNIPEX_API_URL;
   if (!base) throw new Error("NEXT_PUBLIC_SNIPEX_API_URL is not set");
@@ -74,7 +67,7 @@ function getApiBase(): string {
 }
 
 /**
- * Call the Snipex /search endpoint directly (e.g. from server components or
+ * Call the Snippex /search endpoint directly (e.g. from server components or
  * authenticated server-side code). For client-side playground calls, use the
  * Next.js proxy route /api/search instead to avoid CORS and hide the backend URL.
  */
@@ -105,7 +98,7 @@ export async function searchDirect(
 }
 
 /**
- * Call the Snipex /search endpoint via the Next.js proxy route.
+ * Call the Snippex /search endpoint via the Next.js proxy route.
  * Safe to use from browser — doesn't expose backend URL or API key.
  */
 export async function searchViaProxy(

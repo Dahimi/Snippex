@@ -8,8 +8,8 @@ from auth.api_key import verify_api_key
 from config import settings
 
 app = FastAPI(
-    title="Snipex - Search Snippet Extraction API",
-    description="Extracts relevant snippets from search results using LLM anchors.",
+    title="Snippex - Search Snippet Extraction API",
+    description="Extracts relevant snippets from search results.",
     version="0.1.0"
 )
 

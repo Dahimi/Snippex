@@ -4,27 +4,27 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Snipex — Search Snippet Extraction API",
-    template: "%s | Snipex",
+    default: "Snippex — Search Snippet Extraction API",
+    template: "%s | Snippex",
   },
   description:
-    "Snipex returns the exact relevant passages from each search result — not just links. A search API built for developers.",
+    "Snippex returns the exact relevant passages from each search result — not just links. A search API built for developers.",
   openGraph: {
-    title: "Snipex — Search Snippet Extraction API",
+    title: "Snippex — Search Snippet Extraction API",
     description:
-      "Snipex returns the exact relevant passages from each search result — not just links.",
-    url: "https://snipex.com",
-    siteName: "Snipex",
+      "Snippex returns the exact relevant passages from each search result — not just links.",
+    url: "https://snippex.com",
+    siteName: "Snippex",
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Snipex — Search Snippet Extraction API",
+    title: "Snippex — Search Snippet Extraction API",
     description:
-      "Snipex returns the exact relevant passages from each search result — not just links.",
+      "Snippex returns the exact relevant passages from each search result — not just links.",
   },
-  metadataBase: new URL("https://snipex.com"),
+  metadataBase: new URL("https://snippex.com"),
 };
 
 export default function RootLayout({
