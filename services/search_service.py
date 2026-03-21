@@ -6,6 +6,7 @@ from models.response import SearchResponse, SearchResult, Snippet
 from providers.search.base import SearchProvider
 from providers.llm.base import LLMProvider
 from .snippet_reconstructor import reconstruct_snippet
+from cache.redis import get_cached, set_cached
 
 class SearchService:
     def __init__(self, search_provider: SearchProvider, llm_provider: LLMProvider):
@@ -13,8 +14,13 @@ class SearchService:
         self.llm_provider = llm_provider
 
     async def search_and_extract(self, request: SearchRequest) -> SearchResponse:
+        # 0. Cache lookup
+        cached = await get_cached(request)
+        if cached is not None:
+            return cached
+
         start_time = time.time()
-        
+
         # 1. Fetch search results
         raw_results = await self.search_provider.search(request)
         end_search_time = time.time()
@@ -80,8 +86,13 @@ class SearchService:
             
         latency_ms = int((time.time() - start_time) * 1000)
         
-        return SearchResponse(
+        response = SearchResponse(
             query=request.query,
             results=final_results,
             total_latency_ms=latency_ms,
         )
+
+        # Store in cache (fire-and-forget, errors are swallowed inside)
+        await set_cached(request, response)
+
+        return response

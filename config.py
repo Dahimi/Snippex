@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import Optional
 import os
 
 class Settings(BaseSettings):
@@ -17,6 +18,10 @@ class Settings(BaseSettings):
 
     # Internal service key — used by the web app's playground proxy
     INTERNAL_SERVICE_KEY: str
+
+    # Upstash Redis — optional, cache is disabled if not set
+    UPSTASH_REDIS_URL: Optional[str] = None
+    UPSTASH_REDIS_TOKEN: Optional[str] = None
 
     # Project Settings
     DEFAULT_NUM_RESULTS: int = 5
