@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     UPSTASH_REDIS_URL: Optional[str] = None
     UPSTASH_REDIS_TOKEN: Optional[str] = None
 
+    # GCS telemetry — optional, falls back to local JSONL if not set
+    GCS_LOG_BUCKET: Optional[str] = None
+
     # Project Settings
     DEFAULT_NUM_RESULTS: int = 5
     MAX_NUM_RESULTS: int = 10

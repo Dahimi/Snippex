@@ -1,108 +1,172 @@
 import logging
 import regex as re
-import string
 from typing import Optional, Tuple
 from models.response import SnippetAnchor
 
 logger = logging.getLogger(__name__)
 
+# Maximum characters between head_start and tail_end before we consider it a false positive
+_MAX_SNIPPET_CHARS = 1000
+
+# Stage names returned by _find_fuzzy
+STAGE_EXACT = "exact"
+STAGE_LEVENSHTEIN = "levenshtein"
+STAGE_JACCARD = "jaccard"
+
+
 def _normalize_text(text: str) -> str:
-    """
-    Normalizes text for fuzzy matching by:
-    1. Standardizing quotes.
-    2. Collapsing all whitespace to single spaces.
-    3. Stripping leading/trailing whitespace.
-    """
+    """Standardize quotes, collapse whitespace."""
     if not text:
         return ""
-    # Standardize various curly/escaped quotes to standard double quote
-    text = text.replace('“', '"').replace('”', '"').replace('\\"', '"').replace("'", '"')
-    # Collapse whitespace
+    text = text.replace('\u201c', '"').replace('\u201d', '"').replace('\\"', '"').replace('\u2018', '"').replace('\u2019', '"')
     return " ".join(text.split()).strip()
 
-def _find_fuzzy(content: str, anchor: str, start_index: int = 0) -> Tuple[int, int]:
+
+def _jaccard_token_similarity(a: str, b: str) -> float:
+    """Word-level Jaccard similarity between two strings."""
+    set_a = set(a.lower().split())
+    set_b = set(b.lower().split())
+    if not set_a or not set_b:
+        return 0.0
+    return len(set_a & set_b) / len(set_a | set_b)
+
+
+def _snap_boundaries(content: str, start: int, end: int) -> Tuple[int, int]:
+    """Expand match to include adjacent markdown/formatting characters."""
+    fmt_chars = set('*_#~>\"\u201c\u201d\u2018\u2019')
+    while start > 0 and content[start - 1] in fmt_chars:
+        start -= 1
+    while end < len(content) and content[end] in fmt_chars:
+        end += 1
+    return start, end
+
+
+def _find_fuzzy(content: str, anchor: str, start_index: int = 0) -> Tuple[int, int, Optional[str]]:
     """
-    Attempts to find an anchor in the content using multiple stages of increasing fuzziness.
-    Returns (start_index, end_index) or (-1, -1) if not found.
+    Find anchor in content using three stages of increasing fuzziness.
+    Returns (start, end, stage) where stage is STAGE_EXACT / STAGE_LEVENSHTEIN /
+    STAGE_JACCARD, or (-1, -1, None) on failure.
     """
-    # Stage 1: Strict match
+    # ------------------------------------------------------------------ #
+    # Stage 1 — exact match on raw content
+    # ------------------------------------------------------------------ #
     idx = content.find(anchor, start_index)
     if idx != -1:
-        return idx, idx + len(anchor)
+        return idx, idx + len(anchor), STAGE_EXACT
 
-    # Stage 2: Truly Fuzzy Match with 'regex' library
-    # This is the "smart" stage. We allow a small number of errors (approx 15-20% of length)
-    # This handles missing markdown markers, slight typos, and punctuation variations.
-    print("Using fuzzy matching stage 2 for anchor: ", anchor)
     norm_anchor = _normalize_text(anchor)
     if not norm_anchor:
-        return -1, -1
-        
-    # We use a distance of e<=min(8, 15% of length)
+        return -1, -1, None
+
+    # ------------------------------------------------------------------ #
+    # Stage 2 — Levenshtein fuzzy match across the full remaining content.
+    # ------------------------------------------------------------------ #
     max_errors = max(1, len(norm_anchor) // 6)
-    # (?b) = best match (lowest error count)
-    # We search for the anchor but allow some "errors" which include missing/extra symbols.
     fuzzy_pattern = f"(?b)(?:{re.escape(norm_anchor)}){{e<={max_errors}}}"
-    
+
     match = re.search(fuzzy_pattern, content[start_index:])
     if match:
-        start, end = start_index + match.start(), start_index + match.end()
-        # Stage 4: Boundary Snapping (Rule-based cleanup)
-        # If we found a fuzzy match, try to expand slightly to include adjacent symbols 
-        # (like ** or quotes) that the LLM might have missed but are clearly part of the boundary.
-        
-        # Snap start backwards: include non-alphanumeric chars that aren't paragraph/sentence breaks
-        while start > 0 and content[start-1] in "*_#~>\"'“‘" and content[start-1] not in ".!?":
-            start -= 1
-        # Snap end forwards: include non-alphanumeric chars
-        while end < len(content) and content[end] in "*_#~>\"'”’" and content[end] not in ".!?":
-            end += 1
-            
-        return start, end
+        start = start_index + match.start()
+        end = start_index + match.end()
+        start, end = _snap_boundaries(content, start, end)
+        logger.info("Stage 2 (Levenshtein) matched anchor %r", anchor[:40])
+        return start, end, STAGE_LEVENSHTEIN
 
-    # Stage 3: Flexible word-based match (fallback)
-    # Search for the anchor's words separated by any whitespace/punctuation variation.
-    pattern_parts = [re.escape(word) for word in norm_anchor.split()]
-    flexible_pattern = r"[\s\W]*".join(pattern_parts)
-    print("Using fuzzy matching stage 3 for anchor: ", anchor)
-    match = re.search(flexible_pattern, content[start_index:])
-    if match:
-        start, end = start_index + match.start(), start_index + match.end()
-        # Snap here too
-        while start > 0 and content[start-1] in "*_#~>\"'“‘" and content[start-1] not in ".!?":
-            start -= 1
-        while end < len(content) and content[end] in "*_#~>\"'”’" and content[end] not in ".!?":
-            end += 1
-        print("Got number of results : ", len(raw_results))
-        return start, end
+    # ------------------------------------------------------------------ #
+    # Stage 3 — Token Jaccard sliding window
+    # ------------------------------------------------------------------ #
+    anchor_words = norm_anchor.split()
+    n_words = len(anchor_words)
+    if n_words < 2:
+        return -1, -1, None
 
-    return -1, -1
+    content_words = content[start_index:].split()
+    best_score = 0.0
+    best_word_offset = -1
 
-def reconstruct_snippet(content: str, anchor: SnippetAnchor) -> Optional[str]:
+    for i in range(len(content_words) - n_words + 1):
+        window_words = content_words[i: i + n_words]
+        score = _jaccard_token_similarity(" ".join(anchor_words), " ".join(window_words))
+        if score > best_score:
+            best_score = score
+            best_word_offset = i
+
+    if best_score >= 0.65 and best_word_offset != -1:
+        matched_text = " ".join(content_words[best_word_offset: best_word_offset + n_words])
+        char_idx = content.find(content_words[best_word_offset], start_index)
+        if char_idx != -1:
+            end = char_idx + len(matched_text)
+            start, end = _snap_boundaries(content, char_idx, end)
+            logger.info("Stage 3 (Jaccard %.2f) matched anchor %r", best_score, anchor[:40])
+            return start, end, STAGE_JACCARD
+
+    return -1, -1, None
+
+
+class ReconstructionResult:
+    """Outcome of a single anchor-pair reconstruction, including telemetry."""
+    __slots__ = ("text", "head_stage", "tail_stage", "matched_head", "matched_tail")
+
+    def __init__(
+        self,
+        text: Optional[str],
+        head_stage: Optional[str],
+        tail_stage: Optional[str],
+        matched_head: Optional[str] = None,
+        matched_tail: Optional[str] = None,
+    ):
+        self.text = text
+        self.head_stage = head_stage
+        self.tail_stage = tail_stage
+        # The actual text found in the source — only differs from the LLM anchor
+        # when a fuzzy stage was used (useful for measuring LLM anchor accuracy).
+        self.matched_head = matched_head
+        self.matched_tail = matched_tail
+
+    @property
+    def succeeded(self) -> bool:
+        return self.text is not None
+
+
+def reconstruct_snippet(content: str, anchor: SnippetAnchor) -> ReconstructionResult:
     """
-    Locates the passage in source content using head and tail anchor strings.
-    Uses multi-stage fuzzy matching to handle minor variations.
-    Returns None if either anchor is truly not found.
+    Locate and return the passage in source content bounded by head/tail anchors.
+    Always returns a ReconstructionResult — check .succeeded or .text for None.
     """
-    head_start, head_end = _find_fuzzy(content, anchor.head)
-    
+    head_start, head_end, head_stage = _find_fuzzy(content, anchor.head)
+
     if head_start == -1:
-        logger.error(f"Head anchor not found: {repr(anchor.head)}")
-        return None
-        
-    # Find tail AT OR AFTER the start of the head
-    # Use head_start instead of head_end to handle single-word snippets
-    tail_start, tail_end = _find_fuzzy(content, anchor.tail, head_start)
-    
-    if tail_start == -1:
-        logger.error(f"Tail anchor not found: {repr(anchor.tail)}")
-        return None
-        
-    # Ensure the tail ends at or after the head starts
-    if tail_end < head_start:
-        logger.error(f"Tail {repr(anchor.tail)} found BEFORE head {repr(anchor.head)}")
-        return None
+        logger.warning("Head anchor not found: %r", anchor.head[:60])
+        return ReconstructionResult(None, None, None)
 
-    # The snippet is from start of head to end of tail
-    snippet_text = content[head_start : tail_end]
-    return snippet_text.strip()
+    matched_head = content[head_start:head_end]
+
+    tail_start, tail_end, tail_stage = _find_fuzzy(content, anchor.tail, head_start)
+
+    if tail_start == -1:
+        logger.warning("Tail anchor not found: %r", anchor.tail[:60])
+        return ReconstructionResult(None, head_stage, None, matched_head=matched_head)
+
+    matched_tail = content[tail_start:tail_end]
+
+    if tail_end < head_start:
+        logger.warning("Tail found before head — skipping anchor pair")
+        return ReconstructionResult(None, head_stage, tail_stage, matched_head, matched_tail)
+
+    # Span guard only applies to fuzzy matches
+    if head_stage != STAGE_EXACT or tail_stage != STAGE_EXACT:
+        span = tail_end - head_start
+        if span > _MAX_SNIPPET_CHARS:
+            logger.warning(
+                "Fuzzy span too long (%d chars) for anchor head=%r — rejecting",
+                span, anchor.head[:40]
+            )
+            return ReconstructionResult(None, head_stage, tail_stage, matched_head, matched_tail)
+
+    return ReconstructionResult(
+        content[head_start:tail_end].strip(),
+        head_stage,
+        tail_stage,
+        matched_head,
+        matched_tail,
+    )
