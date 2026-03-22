@@ -1,40 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
+import { Redis } from "@upstash/redis";
 import type { SearchRequest } from "@/lib/api";
 
-/**
- * POST /api/search
- *
- * Client-side proxy to the Snipex backend.
- * - Hides the backend URL and API key from the browser
- * - Applies rate limiting for unauthenticated users (in-memory, resets on deploy)
- * - Authenticated users get a higher limit
- *
- * TODO: replace in-memory rate limit with Upstash Redis for production
- */
+const ANON_LIMIT = 5;     // requests per IP per hour (unauthenticated)
+const AUTHED_LIMIT = 100; // requests per user per hour (authenticated, playground only)
+const WINDOW_SECONDS = 3600;
 
-const ANON_LIMIT = 5;      // requests per IP per hour for unauthenticated users
-const AUTHED_LIMIT = 100;  // requests per user per hour for authenticated users
+function getRedis(): Redis | null {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return null;
+  return new Redis({ url, token });
+}
 
-// In-memory store: key → { count, resetAt }
-// NOT suitable for multi-instance deployments — replace with Redis in production
-const rateStore = new Map<string, { count: number; resetAt: number }>();
-
-function checkRateLimit(key: string, limit: number): { allowed: boolean; remaining: number } {
-  const now = Date.now();
-  const entry = rateStore.get(key);
-
-  if (!entry || now > entry.resetAt) {
-    rateStore.set(key, { count: 1, resetAt: now + 60 * 60 * 1000 });
-    return { allowed: true, remaining: limit - 1 };
+async function checkRateLimit(
+  redis: Redis | null,
+  key: string,
+  limit: number
+): Promise<{ allowed: boolean; remaining: number }> {
+  if (!redis) {
+    // Redis not configured — fall back to allow (better than blocking everyone)
+    return { allowed: true, remaining: limit };
   }
 
-  if (entry.count >= limit) {
-    return { allowed: false, remaining: 0 };
-  }
+  const count = await redis.incr(key);
+  if (count === 1) await redis.expire(key, WINDOW_SECONDS);
 
-  entry.count += 1;
-  return { allowed: true, remaining: limit - entry.count };
+  const remaining = Math.max(0, limit - count);
+  return { allowed: count <= limit, remaining };
 }
 
 function getClientIp(req: NextRequest): string {
@@ -46,25 +40,23 @@ function getClientIp(req: NextRequest): string {
 }
 
 export async function POST(req: NextRequest) {
-  // Auth check
   const { userId } = await auth();
 
-  // Rate limiting
-  const rateLimitKey = userId ? `user:${userId}` : `ip:${getClientIp(req)}`;
+  const redis = getRedis();
+  const rateLimitKey = userId
+    ? `snx:playground:user:${userId}`
+    : `snx:playground:ip:${getClientIp(req)}`;
   const limit = userId ? AUTHED_LIMIT : ANON_LIMIT;
-  const { allowed, remaining } = checkRateLimit(rateLimitKey, limit);
+
+  const { allowed, remaining } = await checkRateLimit(redis, rateLimitKey, limit);
 
   if (!allowed) {
     return NextResponse.json(
       { error: "Rate limit exceeded. Sign in for higher limits." },
-      {
-        status: 429,
-        headers: { "X-RateLimit-Remaining": "0" },
-      }
+      { status: 429, headers: { "X-RateLimit-Remaining": "0" } }
     );
   }
 
-  // Parse + validate request body
   let body: SearchRequest;
   try {
     body = (await req.json()) as SearchRequest;
@@ -76,21 +68,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "query is required" }, { status: 400 });
   }
 
-  // Forward to backend
   const backendUrl = process.env.SNIPEX_API_URL ?? process.env.NEXT_PUBLIC_SNIPEX_API_URL;
   if (!backendUrl) {
-    return NextResponse.json(
-      { error: "Backend URL not configured" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Backend URL not configured" }, { status: 500 });
   }
 
   const serviceKey = process.env.SNIPEX_INTERNAL_SERVICE_KEY;
   if (!serviceKey) {
-    return NextResponse.json(
-      { error: "Internal service key not configured" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal service key not configured" }, { status: 500 });
   }
 
   try {

@@ -1,7 +1,8 @@
 from langchain_cerebras import ChatCerebras
-
+from dotenv import load_dotenv
+load_dotenv()
 llm = ChatCerebras(
-    model="gpt-oss-120b",
+    model="qwen-3-235b-a22b-instruct-2507",
     # other params...
 )
 

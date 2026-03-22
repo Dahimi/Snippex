@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     DEFAULT_NUM_RESULTS: int = 5
     MAX_NUM_RESULTS: int = 10
     DEFAULT_MAX_SNIPPETS_PER_RESULT: int = 3
+    RATE_LIMIT_USER_PER_HOUR: int = os.getenv("RATE_LIMIT_USER_PER_HOUR", 100)  # 0 = unlimited
     
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
