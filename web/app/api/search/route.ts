@@ -8,8 +8,8 @@ const AUTHED_LIMIT = 100; // requests per user per hour (authenticated, playgrou
 const WINDOW_SECONDS = 3600;
 
 function getRedis(): Redis | null {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  const url = process.env.UPSTASH_REDIS_URL;
+  const token = process.env.UPSTASH_REDIS_TOKEN;
   if (!url || !token) return null;
   return new Redis({ url, token });
 }
