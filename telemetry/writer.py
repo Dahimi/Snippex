@@ -59,7 +59,7 @@ async def write_log(log: RequestLog) -> None:
             logger.warning("GCS write failed, falling back to local: %s", exc)
 
     # Local fallback
-    try
+    try:
         with _LOCAL_LOG_PATH.open("a", encoding="utf-8") as f:
             f.write(log.model_dump_json() + "\n")
         logger.debug("Telemetry written locally to %s", _LOCAL_LOG_PATH)
