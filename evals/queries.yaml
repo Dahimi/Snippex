@@ -1,0 +1,202 @@
+# Eval query set — 60 diverse queries across 8 categories
+# Each query is designed to reflect real-world usage of the search API.
+#
+# Categories:
+#   news          — breaking/recent events, time-sensitive
+#   finance       — markets, companies, economic indicators
+#   tech          — products, tools, software, engineering
+#   science       — research, health, environment
+#   how_to        — instructional, step-based queries
+#   facts         — specific, verifiable, historical
+#   ambiguous     — unclear intent or multiple valid answers
+#   multi_part    — compound questions requiring several answers
+
+queries:
+
+  # ── NEWS ──────────────────────────────────────────────────────────────────
+  - query: "latest Fed interest rate decision 2025"
+    category: news
+
+  - query: "Ukraine Russia ceasefire negotiations update"
+    category: news
+
+  - query: "Apple earnings report Q1 2025"
+    category: news
+
+  - query: "US tariffs trade policy 2025"
+    category: news
+
+  - query: "OpenAI GPT-5 release news"
+    category: news
+
+  - query: "EU AI Act enforcement 2025"
+    category: news
+
+  - query: "SpaceX Starship latest launch outcome"
+    category: news
+
+  - query: "US inflation CPI March 2025"
+    category: news
+
+  # ── FINANCE ───────────────────────────────────────────────────────────────
+  - query: "S&P 500 performance year to date 2025"
+    category: finance
+
+  - query: "Bitcoin price prediction 2025 analysts"
+    category: finance
+
+  - query: "Nvidia stock analysis 2025"
+    category: finance
+
+  - query: "US treasury yield curve inversion"
+    category: finance
+
+  - query: "Saudi Aramco dividend 2025"
+    category: finance
+
+  - query: "TSMC revenue forecast 2025"
+    category: finance
+
+  - query: "commercial real estate crisis banks exposure"
+    category: finance
+
+  - query: "Berkshire Hathaway annual meeting 2025 highlights"
+    category: finance
+
+  # ── TECH ──────────────────────────────────────────────────────────────────
+  - query: "Python vs Rust performance comparison systems programming"
+    category: tech
+
+  - query: "best vector databases 2025 comparison"
+    category: tech
+
+  - query: "React Server Components vs Next.js App Router differences"
+    category: tech
+
+  - query: "Claude 3.5 vs GPT-4o benchmark results"
+    category: tech
+
+  - query: "Kubernetes vs Docker Swarm production use cases"
+    category: tech
+
+  - query: "WebAssembly use cases in production 2025"
+    category: tech
+
+  - query: "open source LLM alternatives to GPT-4 2025"
+    category: tech
+
+  - query: "PostgreSQL vs MongoDB when to use which"
+    category: tech
+
+  # ── SCIENCE / HEALTH ──────────────────────────────────────────────────────
+  - query: "GLP-1 drugs weight loss long term effects research"
+    category: science
+
+  - query: "CRISPR gene therapy clinical trials 2025"
+    category: science
+
+  - query: "climate change Arctic ice extent 2025 data"
+    category: science
+
+  - query: "mRNA vaccine cancer treatment progress"
+    category: science
+
+  - query: "microplastics health effects latest research"
+    category: science
+
+  - query: "James Webb telescope most recent discoveries"
+    category: science
+
+  - query: "Alzheimer treatment lecanemab real world results"
+    category: science
+
+  - query: "quantum computing practical applications timeline"
+    category: science
+
+  # ── HOW-TO / GUIDES ───────────────────────────────────────────────────────
+  - query: "how to set up a RAG pipeline with LangChain"
+    category: how_to
+
+  - query: "how to negotiate a salary offer tech industry"
+    category: how_to
+
+  - query: "how to file taxes as a freelancer United States"
+    category: how_to
+
+  - query: "how to train a custom object detection model YOLO"
+    category: how_to
+
+  - query: "how to migrate PostgreSQL to CockroachDB"
+    category: how_to
+
+  - query: "how to reduce Docker image size best practices"
+    category: how_to
+
+  - query: "how to invest in index funds for beginners"
+    category: how_to
+
+  - query: "how to get a US visa appointment faster 2025"
+    category: how_to
+
+  # ── FACTS / SPECIFIC ──────────────────────────────────────────────────────
+  - query: "who is the CEO of Anthropic"
+    category: facts
+
+  - query: "what is the capital gains tax rate US 2025"
+    category: facts
+
+  - query: "how many parameters does GPT-4 have"
+    category: facts
+
+  - query: "population of Morocco 2025"
+    category: facts
+
+  - query: "when was the Transformer architecture first published"
+    category: facts
+
+  - query: "what countries are in the BRICS alliance 2025"
+    category: facts
+
+  - query: "largest sovereign wealth funds in the world"
+    category: facts
+
+  - query: "EU GDPR maximum fine amount"
+    category: facts
+
+  # ── AMBIGUOUS ─────────────────────────────────────────────────────────────
+  - query: "best programming language 2025"
+    category: ambiguous
+
+  - query: "is the economy going into recession"
+    category: ambiguous
+
+  - query: "AI replacing jobs"
+    category: ambiguous
+
+  - query: "remote work productivity studies"
+    category: ambiguous
+
+  # ── MULTI-PART ────────────────────────────────────────────────────────────
+  - query: "what are the pros and cons of microservices vs monolithic architecture"
+    category: multi_part
+
+  - query: "how does RAG differ from fine-tuning and when should you use each"
+    category: multi_part
+
+  - query: "what caused the 2023 bank failures and what regulations changed after"
+    category: multi_part
+
+  - query: "compare transformer and state space models for sequence modeling"
+    category: multi_part
+
+  - query: "explain HTTP/2 vs HTTP/3 differences and which to choose"
+    category: multi_part
+
+  - query: "what are the main climate change mitigation strategies and their costs"
+    category: multi_part
+
+  - query: "compare Llama 3 Mistral and Gemma open source LLMs on key dimensions"
+    category: multi_part
+
+  - query: "what is dollar cost averaging and when does it outperform lump sum investing"
+    category: multi_part

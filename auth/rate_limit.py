@@ -20,16 +20,21 @@ logger = logging.getLogger(__name__)
 
 _WINDOW_SECONDS = 3600  # 1 hour
 
+_redis_client = None
+
 
 def _redis():
+    global _redis_client
+    if _redis_client is not None:
+        return _redis_client
     try:
         from upstash_redis.asyncio import Redis
         if not settings.UPSTASH_REDIS_URL or not settings.UPSTASH_REDIS_TOKEN:
             return None
-        return Redis(url=settings.UPSTASH_REDIS_URL, token=settings.UPSTASH_REDIS_TOKEN)
+        _redis_client = Redis(url=settings.UPSTASH_REDIS_URL, token=settings.UPSTASH_REDIS_TOKEN)
     except Exception as exc:
         logger.warning("Rate limit Redis unavailable: %s", exc)
-        return None
+    return _redis_client
 
 
 def _rate_limit_for(ctx: UserContext) -> int:

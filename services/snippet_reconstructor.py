@@ -6,7 +6,7 @@ from models.response import SnippetAnchor
 logger = logging.getLogger(__name__)
 
 # Maximum characters between head_start and tail_end before we consider it a false positive
-_MAX_SNIPPET_CHARS = 1000
+_MAX_SNIPPET_CHARS = 5000
 
 # Stage names returned by _find_fuzzy
 STAGE_EXACT = "exact"

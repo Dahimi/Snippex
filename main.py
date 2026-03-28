@@ -1,5 +1,9 @@
+import logging
+import time
 import uuid
-from fastapi import FastAPI, Depends, HTTPException, BackgroundTasks, Security
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Depends, HTTPException, BackgroundTasks, Request, Security
+from fastapi.responses import Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from models.request import SearchRequest
 from models.response import SearchResponse
@@ -9,14 +13,37 @@ from services.search_service import SearchService
 from auth.api_key import verify_api_key, UserContext
 from auth.credits import consume_credit, increment_usage
 from auth.rate_limit import check_rate_limit
-from telemetry.writer import write_log
+from telemetry.writer import initialize as init_telemetry, write_log
 from config import settings
+
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    init_telemetry()
+    yield
+
 
 app = FastAPI(
     title="Snippex - Search Snippet Extraction API",
     description="Extracts relevant snippets from search results.",
     version="0.1.0",
+    lifespan=lifespan,
 )
+
+
+@app.middleware("http")
+async def timing_middleware(request: Request, call_next):
+    t0 = time.perf_counter()
+    response: Response = await call_next(request)
+    e2e_ms = int((time.perf_counter() - t0) * 1000)
+    response.headers["X-Request-Duration-Ms"] = str(e2e_ms)
+    logger.info(
+        "%s %s %s | e2e=%dms",
+        request.method, request.url.path, response.status_code, e2e_ms,
+    )
+    return response
 
 _bearer = HTTPBearer()
 
