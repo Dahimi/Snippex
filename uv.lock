@@ -1560,6 +1560,7 @@ dependencies = [
     { name = "langchain-cerebras" },
     { name = "pydantic-settings" },
     { name = "regex" },
+    { name = "stripe" },
     { name = "supabase" },
     { name = "upstash-redis" },
     { name = "uvicorn" },
@@ -1579,6 +1580,7 @@ requires-dist = [
     { name = "langchain-cerebras", specifier = ">=0.8.2" },
     { name = "pydantic-settings" },
     { name = "regex" },
+    { name = "stripe" },
     { name = "supabase" },
     { name = "upstash-redis" },
     { name = "uvicorn" },
@@ -1638,6 +1640,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/b3/08/efd28d49162ce89c2ad61a88bd80e11fb77bc9f6c145402589112d38f8af/strictyaml-1.7.3.tar.gz", hash = "sha256:22f854a5fcab42b5ddba8030a0e4be51ca89af0267961c8d6cfa86395586c407", size = 115206, upload-time = "2023-03-10T12:50:27.062Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/96/7c/a81ef5ef10978dd073a854e0fa93b5d8021d0594b639cc8f6453c3c78a1d/strictyaml-1.7.3-py3-none-any.whl", hash = "sha256:fb5c8a4edb43bebb765959e420f9b3978d7f1af88c80606c03fb420888f5d1c7", size = 123917, upload-time = "2023-03-10T12:50:17.242Z" },
+]
+
+[[package]]
+name = "stripe"
+version = "15.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/36/5a/0cdea4b7911b8012936c765544109da27c0728f6911ec7aefe9d59e7a4f9/stripe-15.0.0.tar.gz", hash = "sha256:0717cd9ba8e8193cef8b1c488ce27836754df496ab6fb75864096e0cdf15e52d", size = 1486873, upload-time = "2026-03-26T01:39:04.073Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/03/4a/4431c998c451cf07f8b4fed98f425b4aaf3d59cc4fb1e6f54d7713606688/stripe-15.0.0-py3-none-any.whl", hash = "sha256:434ec5267a7402a30b76786d159c18d0e138f89195969d6c56bea2e08d353be0", size = 2125454, upload-time = "2026-03-26T01:39:01.801Z" },
 ]
 
 [[package]]

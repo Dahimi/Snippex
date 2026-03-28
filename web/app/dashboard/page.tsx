@@ -401,7 +401,7 @@ export default function DashboardPage() {
                 <p>
                   <span className="text-zinc-200">2.</span> Make a POST request to{" "}
                   <code className="font-mono text-xs text-indigo-300">
-                    {process.env.NEXT_PUBLIC_SNIPEX_API_URL ?? "https://api.snipex.com"}/search
+                    {process.env.NEXT_PUBLIC_SNIPEX_API_URL ?? "https://api.snippex.ai"}/v1/search
                   </code>
                 </p>
                 <p>
@@ -421,7 +421,7 @@ export default function DashboardPage() {
                   </a>{" "}
                   to see live results, or read the{" "}
                   <a
-                    href="https://docs.snipex.com"
+                    href="https://docs.snippex.ai"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-indigo-400 hover:underline"

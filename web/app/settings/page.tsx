@@ -1,10 +1,9 @@
 "use client";
 
-import { useUser, useClerk } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import {
   User,
   CreditCard,
-  LogOut,
   ExternalLink,
   Info,
   Loader2,
@@ -45,11 +44,16 @@ function SettingsRow({
   );
 }
 
+const MIN_CREDITS = 250;
+const CREDITS_PRICE_CENTS = 2; // $0.02 per credit
+
 export default function SettingsPage() {
   const { user } = useUser();
-  const { signOut } = useClerk();
   const [credits, setCredits] = useState<number | null>(null);
   const [loadingCredits, setLoadingCredits] = useState(true);
+  const [topUpAmount, setTopUpAmount] = useState<number>(MIN_CREDITS);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/usage")
@@ -58,6 +62,25 @@ export default function SettingsPage() {
       .catch(() => setCredits(null))
       .finally(() => setLoadingCredits(false));
   }, []);
+
+  async function handleTopUp() {
+    setCheckoutLoading(true);
+    setCheckoutError(null);
+    try {
+      const res = await fetch("/api/billing/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credits: topUpAmount }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Checkout failed");
+      window.location.href = data.checkout_url;
+    } catch (err) {
+      setCheckoutError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setCheckoutLoading(false);
+    }
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -108,23 +131,16 @@ export default function SettingsPage() {
             />
           </div>
 
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="mt-6">
             <a
-              href="https://accounts.snipex.com/user"
+              href="https://accounts.snippex.ai/user"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-300 hover:border-zinc-600 hover:bg-zinc-800 transition-colors"
+              className="flex w-fit items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-300 hover:border-zinc-600 hover:bg-zinc-800 transition-colors"
             >
               Manage account
               <ExternalLink size={12} />
             </a>
-            <button
-              onClick={() => signOut()}
-              className="flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 hover:border-zinc-600 hover:text-red-400 transition-colors"
-            >
-              <LogOut size={14} />
-              Sign out
-            </button>
           </div>
         </section>
 
@@ -163,37 +179,39 @@ export default function SettingsPage() {
             />
           </div>
 
-          {/* Stripe placeholder */}
-          <div className="mt-6 rounded-xl border border-dashed border-zinc-700 p-5">
-            <div className="flex items-start gap-3">
-              <Info size={16} className="mt-0.5 shrink-0 text-zinc-500" />
-              <div>
-                <p className="text-sm font-medium text-zinc-300">
-                  Credit top-up coming soon
-                </p>
-                <p className="mt-1 text-sm text-zinc-500">
-                  Stripe billing integration is in progress. During early access,
-                  reach out to{" "}
-                  <a
-                    href="mailto:hello@snipex.com"
-                    className="text-indigo-400 hover:underline"
-                  >
-                    hello@snipex.com
-                  </a>{" "}
-                  to get more credits.
-                </p>
-              </div>
+          {/* Credit top-up */}
+          <div className="mt-6 space-y-3">
+            <p className="text-sm text-zinc-400">
+              Top up credits — ${(CREDITS_PRICE_CENTS / 100).toFixed(2)} per credit, minimum {MIN_CREDITS} credits.
+            </p>
+            <div className="flex items-center gap-3">
+              <input
+                type="number"
+                min={MIN_CREDITS}
+                step={50}
+                value={topUpAmount}
+                onChange={(e) => setTopUpAmount(Math.max(MIN_CREDITS, parseInt(e.target.value) || MIN_CREDITS))}
+                className="w-32 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 focus:border-indigo-500 focus:outline-none"
+              />
+              <span className="text-sm text-zinc-500">
+                = ${((topUpAmount * CREDITS_PRICE_CENTS) / 100).toFixed(2)}
+              </span>
             </div>
+            {checkoutError && (
+              <p className="flex items-center gap-1.5 text-sm text-red-400">
+                <Info size={13} />
+                {checkoutError}
+              </p>
+            )}
+            <button
+              onClick={handleTopUp}
+              disabled={checkoutLoading}
+              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+            >
+              {checkoutLoading ? <Loader2 size={15} className="animate-spin" /> : <CreditCard size={15} />}
+              {checkoutLoading ? "Redirecting…" : "Add credits"}
+            </button>
           </div>
-
-          {/* Placeholder Stripe button */}
-          <button
-            disabled
-            className="mt-4 flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-2.5 text-sm text-zinc-500 cursor-not-allowed opacity-60"
-          >
-            <CreditCard size={15} />
-            Add credits — coming soon
-          </button>
         </section>
 
         {/* Danger zone */}
@@ -212,8 +230,8 @@ export default function SettingsPage() {
           </button>
           <p className="mt-2 text-xs text-zinc-600">
             Contact{" "}
-            <a href="mailto:hello@snipex.com" className="text-zinc-500 hover:underline">
-              hello@snipex.com
+            <a href="mailto:hello@snippex.ai" className="text-zinc-500 hover:underline">
+              hello@snippex.ai
             </a>{" "}
             to request account deletion.
           </p>

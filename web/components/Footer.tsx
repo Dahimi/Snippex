@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL ?? "https://docs.snippex.com";
+const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL ?? "https://docs.snippex.ai";
 
 export default function Footer() {
   return (

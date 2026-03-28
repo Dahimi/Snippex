@@ -2,7 +2,7 @@
  * Snippex API — single source of truth for all types and fetch functions.
  * If the backend contract changes, update only this file.
  *
- * Backend: POST /search  (FastAPI, see models/request.py + models/response.py)
+ * Backend: POST /v1/search  (FastAPI, see models/request.py + models/response.py)
  */
 
 // ---------------------------------------------------------------------------
@@ -83,7 +83,7 @@ export async function searchDirect(
     headers["Authorization"] = `Bearer ${apiKey}`;
   }
 
-  const res = await fetch(`${base}/search`, {
+  const res = await fetch(`${base}/v1/search`, {
     method: "POST",
     headers,
     body: JSON.stringify(request),

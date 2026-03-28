@@ -42,12 +42,12 @@ class SearchService:
         Returns (SearchResponse, RequestLog) — the log is handed to the
         caller to persist as a BackgroundTask so it never blocks the response.
         """
+        t_start = time.time()
+
         # 0. Cache lookup
         cached = await get_cached(request)
         if cached is not None:
             return cached, None   # no new log for cached responses
-
-        t_start = time.time()
 
         # 1. Fetch raw search results
         raw_results = await self.search_provider.search(request)
@@ -144,6 +144,16 @@ class SearchService:
                     reconstructions=reconstruction_logs,
                 )
             )
+
+        # Re-rank by average snippet relevance; zero-snippet results go last
+        def _avg_relevance(r: SearchResult) -> float:
+            if not r.snippets:
+                return -1.0
+            return sum(s.relevance_score for s in r.snippets) / len(r.snippets)
+
+        final_results.sort(key=_avg_relevance, reverse=True)
+        for i, r in enumerate(final_results):
+            r.rank = i + 1
 
         total_ms = int((time.time() - t_start) * 1000)
 

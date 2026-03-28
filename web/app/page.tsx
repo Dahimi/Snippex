@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
 
-const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL ?? "https://docs.snippex.com";
+const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL ?? "https://docs.snippex.ai";
 import { ArrowRight, Zap, Search, Code2, ChevronRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CodeBlock from "@/components/CodeBlock";
 
-const REQUEST_EXAMPLE = `curl -X POST https://api.snippex.com/search \\
+const REQUEST_EXAMPLE = `curl -X POST https://api.snippex.ai/v1/search \\
   -H "Authorization: Bearer snx_your_api_key" \\
   -H "Content-Type: application/json" \\
   -d '{

@@ -28,7 +28,7 @@ function buildCurl(req: SearchRequest): string {
     null,
     2
   );
-  return `curl -X POST https://api.snippex.com/search \\
+  return `curl -X POST https://api.snippex.ai/v1/search \\
   -H "Authorization: Bearer snx_your_api_key" \\
   -H "Content-Type: application/json" \\
   -d '${body}'`;
@@ -43,7 +43,7 @@ function buildPython(req: SearchRequest): string {
   return `import requests
 
 response = requests.post(
-    "https://api.snippex.com/search",
+    "https://api.snippex.ai/v1/search",
     headers={"Authorization": "Bearer snx_your_api_key"},
     json=${body},
 )
@@ -61,7 +61,7 @@ function buildJavaScript(req: SearchRequest): string {
     null,
     2
   );
-  return `const response = await fetch("https://api.snippex.com/search", {
+  return `const response = await fetch("https://api.snippex.ai/v1/search", {
   method: "POST",
   headers: {
     "Authorization": "Bearer snx_your_api_key",

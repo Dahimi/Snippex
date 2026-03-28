@@ -2,7 +2,8 @@ import logging
 import time
 import uuid
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Depends, HTTPException, BackgroundTasks, Request, Security
+from functools import lru_cache
+from fastapi import APIRouter, FastAPI, Depends, HTTPException, BackgroundTasks, Request, Security
 from fastapi.responses import Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from models.request import SearchRequest
@@ -14,10 +15,14 @@ from auth.api_key import verify_api_key, UserContext
 from auth.credits import consume_credit, increment_usage
 from auth.rate_limit import check_rate_limit
 from telemetry.writer import initialize as init_telemetry, write_log
+from billing.checkout import CheckoutRequest, create_checkout_session
+from billing.webhook import handle_webhook
 from config import settings
 
 logger = logging.getLogger(__name__)
 
+# set loggin level to info
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
@@ -46,18 +51,52 @@ async def timing_middleware(request: Request, call_next):
     return response
 
 _bearer = HTTPBearer()
+API_VERSION = "v1"
+router = APIRouter(prefix=f"/{API_VERSION}")
 
 
+@lru_cache(maxsize=1)
 def get_search_service():
     return SearchService(PerplexitySearchProvider(), CerebrasLLMProvider())
 
 
 @app.get("/health")
 async def health_check():
-    return {"status": "ok"}
+    checks = {}
+
+    # Redis
+    try:
+        from cache.redis import _get_client
+        redis = _get_client()
+        if redis:
+            await redis.ping()
+            checks["redis"] = "ok"
+        else:
+            checks["redis"] = "not_configured"
+    except Exception as e:
+        checks["redis"] = f"error: {e}"
+
+    # Supabase
+    try:
+        from auth.api_key import _get_supabase
+        _get_supabase().table("api_keys").select("user_id").limit(1).execute()
+        checks["supabase"] = "ok"
+    except Exception as e:
+        checks["supabase"] = f"error: {e}"
+
+    # Providers — config check only (no live calls)
+    checks["perplexity"] = "configured" if settings.PERPLEXITY_API_KEY else "missing_key"
+    checks["cerebras"] = "configured" if settings.CEREBRAS_API_KEY else "missing_key"
+
+    failed = [k for k, v in checks.items() if str(v).startswith("error")]
+    status = "ok" if not failed else "down"
+    code = 200 if status == "ok" else 503
+
+    from fastapi.responses import JSONResponse
+    return JSONResponse(status_code=code, content={"status": status, "checks": checks})
 
 
-@app.post("/search", response_model=SearchResponse)
+@router.post("/search", response_model=SearchResponse)
 async def search(
     request: SearchRequest,
     background_tasks: BackgroundTasks,
@@ -99,6 +138,28 @@ async def search(
         background_tasks.add_task(write_log, log)
 
     return response
+
+
+@router.post("/billing/checkout")
+async def billing_checkout(
+    body: CheckoutRequest,
+    credentials: HTTPAuthorizationCredentials = Security(_bearer),
+):
+    ctx: UserContext = await verify_api_key(credentials)
+    # Internal proxy may pass the real user_id in the body
+    user_id = (body.user_id if ctx.is_internal and body.user_id else ctx.user_id)
+    if not user_id or user_id == "internal":
+        raise HTTPException(status_code=400, detail="user_id is required for billing.")
+    url = create_checkout_session(user_id, body.credits)
+    return {"checkout_url": url}
+
+
+@router.post("/billing/webhook")
+async def billing_webhook(request: Request):
+    return await handle_webhook(request)
+
+
+app.include_router(router)
 
 
 if __name__ == "__main__":

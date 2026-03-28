@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const upstream = await fetch(`${backendUrl.replace(/\/$/, "")}/search`, {
+    const upstream = await fetch(`${backendUrl.replace(/\/$/, "")}/v1/search`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

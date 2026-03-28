@@ -26,6 +26,12 @@ class Settings(BaseSettings):
     # GCS telemetry — optional, falls back to local JSONL if not set
     GCS_LOG_BUCKET: Optional[str] = None
 
+    # Stripe billing
+    STRIPE_SECRET_KEY: Optional[str] = None
+    STRIPE_WEBHOOK_SECRET: Optional[str] = None
+    STRIPE_SUCCESS_URL: str = "https://snippex.ai/billing/success"
+    STRIPE_CANCEL_URL: str = "https://snippex.ai/billing/cancel"
+
     # Project Settings
     DEFAULT_NUM_RESULTS: int = 5
     MAX_NUM_RESULTS: int = 10

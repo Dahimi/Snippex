@@ -1,5 +1,5 @@
 ---
-title: POST /search
+title: POST /v1/search
 description: Extract relevant snippets from web search results
 ---
 
@@ -8,7 +8,7 @@ description: Extract relevant snippets from web search results
 </Note>
 
 ```
-POST https://api.snipex.com/search
+POST https://api.snippex.ai/v1/search
 ```
 
 ## Request body
@@ -129,7 +129,7 @@ POST https://api.snipex.com/search
 <CodeGroup>
 
 ```bash Request
-curl -X POST https://api.snipex.com/search \
+curl -X POST https://api.snippex.ai/v1/search \
   -H "Authorization: Bearer snx_your_api_key" \
   -H "Content-Type: application/json" \
   -d '{
