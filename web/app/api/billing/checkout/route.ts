@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 
-const BACKEND_URL = process.env.SNIPEX_API_URL ?? process.env.NEXT_PUBLIC_SNIPEX_API_URL ?? "https://api.snippex.ai";
+const BACKEND_URL = process.env.SNIPEX_API_URL ?? process.env.NEXT_PUBLIC_SNIPEX_API_URL ?? "https://api.snipex.dev";
 
 /**
  * POST /api/billing/checkout

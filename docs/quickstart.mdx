@@ -5,7 +5,7 @@ description: Make your first Snipex API call in under 2 minutes
 
 ## 1. Get your API key
 
-Sign up at [snippex.ai/dashboard](https://snippex.ai/dashboard) and create an API key. Keys are prefixed with `snx_`.
+Sign up at [snipex.dev/dashboard](https://snipex.dev/dashboard) and create an API key. Keys are prefixed with `snx_`.
 
 ---
 
@@ -14,7 +14,7 @@ Sign up at [snippex.ai/dashboard](https://snippex.ai/dashboard) and create an AP
 <CodeGroup>
 
 ```bash cURL
-curl -X POST https://api.snippex.ai/v1/search \
+curl -X POST https://api.snipex.dev/v1/search \
   -H "Authorization: Bearer snx_your_api_key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -28,7 +28,7 @@ curl -X POST https://api.snippex.ai/v1/search \
 import requests
 
 response = requests.post(
-    "https://api.snippex.ai/v1/search",
+    "https://api.snipex.dev/v1/search",
     headers={"Authorization": "Bearer snx_your_api_key"},
     json={
         "query": "latest advances in quantum computing",
@@ -45,7 +45,7 @@ for result in data["results"]:
 ```
 
 ```javascript JavaScript
-const response = await fetch("https://api.snippex.ai/v1/search", {
+const response = await fetch("https://api.snipex.dev/v1/search", {
   method: "POST",
   headers: {
     "Authorization": "Bearer snx_your_api_key",
@@ -106,7 +106,7 @@ Each `snippet` contains:
 
 ## 4. Try the playground
 
-Don't want to write code yet? Try the live [Playground](https://snippex.ai/playground) to experiment with queries, see real results, and copy the equivalent code.
+Don't want to write code yet? Try the live [Playground](https://snipex.dev/playground) to experiment with queries, see real results, and copy the equivalent code.
 
 ---
 

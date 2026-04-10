@@ -4,6 +4,7 @@ from langchain_cerebras import ChatCerebras
 from .base import LLMProvider
 from models.response import SnippetAnchor, AnchorExtractionResult
 from prompts.snippet_extraction import get_snippet_extraction_messages
+from providers.retry import with_retry
 from config import settings
 
 logger = logging.getLogger(__name__)
@@ -27,7 +28,10 @@ class CerebrasLLMProvider(LLMProvider):
         )
         structured_llm = self.llm.with_structured_output(AnchorExtractionResult)
         try:
-            result = await structured_llm.ainvoke(messages)
+            result = await with_retry(
+                lambda: structured_llm.ainvoke(messages),
+                label="cerebras",
+            )
             anchors = result.anchors if result and hasattr(result, "anchors") else []
             return anchors, messages
         except Exception as e:

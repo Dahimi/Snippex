@@ -29,8 +29,8 @@ class Settings(BaseSettings):
     # Stripe billing
     STRIPE_SECRET_KEY: Optional[str] = None
     STRIPE_WEBHOOK_SECRET: Optional[str] = None
-    STRIPE_SUCCESS_URL: str = "https://snippex.ai/billing/success"
-    STRIPE_CANCEL_URL: str = "https://snippex.ai/billing/cancel"
+    STRIPE_SUCCESS_URL: str = "https://snipex.dev/billing/success"
+    STRIPE_CANCEL_URL: str = "https://snipex.dev/billing/cancel"
 
     # Project Settings
     DEFAULT_NUM_RESULTS: int = 5

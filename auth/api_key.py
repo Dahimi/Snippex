@@ -69,8 +69,7 @@ async def verify_api_key(
         .maybe_single()
         .execute()
     )
-
-    if not result.data:
+    if not result or not result.data:
         raise HTTPException(status_code=401, detail="Invalid or revoked API key.")
 
     ctx = UserContext(

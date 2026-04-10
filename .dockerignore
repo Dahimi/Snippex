@@ -1,0 +1,21 @@
+.git
+.gitignore
+.env
+.env.example
+
+# Frontend — not part of the backend image
+web/
+docs/
+Docs/
+
+# Python artifacts
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+
+# Dev / scratch files
+temp.py
+output.json

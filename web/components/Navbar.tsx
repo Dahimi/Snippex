@@ -7,10 +7,11 @@ import { useState, useRef, useEffect } from "react";
 import { LayoutDashboard, Settings, LogOut } from "lucide-react";
 import clsx from "clsx";
 
-const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL ?? "https://docs.snippex.ai";
+const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL ?? "https://docs.snipex.dev";
 
 const navLinks = [
   { href: "/playground", label: "Playground" },
+  { href: "/pricing", label: "Pricing" },
   { href: DOCS_URL, label: "Docs", external: true },
 ];
 

@@ -7,7 +7,9 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CodeBlock from "@/components/CodeBlock";
 
-const REQUEST_EXAMPLE = `curl -X POST https://api.snippex.ai/v1/search \\
+const API_URL = process.env.NEXT_PUBLIC_SNIPEX_API_URL ?? "https://api.snipex.dev";
+
+const REQUEST_EXAMPLE = `curl -X POST ${API_URL}/v1/search \\
   -H "Authorization: Bearer snx_your_api_key" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -245,23 +247,16 @@ export default function LandingPage() {
         {/* Pricing teaser */}
         <section className="py-20">
           <div className="mx-auto max-w-6xl px-4 text-center">
-            <h2 className="mb-4 text-2xl font-semibold text-zinc-50">Pricing</h2>
+            <h2 className="mb-3 text-2xl font-semibold text-zinc-50">Simple pricing</h2>
             <p className="mb-8 text-zinc-400">
-              Simple, credit-based pricing. Details coming soon — sign up for
-              early access and get free credits to start.
+              Start free. Pay only for what you use. No subscriptions.
             </p>
-            <div className="inline-flex items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-900 px-8 py-6">
-              <div className="text-left">
-                <div className="text-3xl font-bold text-zinc-50">Free</div>
-                <div className="text-sm text-zinc-400">to start</div>
-              </div>
-              <div className="h-10 w-px bg-zinc-700" />
-              <div className="text-left text-sm text-zinc-400">
-                100 credits on sign up
-                <br />
-                No credit card required
-              </div>
-            </div>
+            <Link
+              href="/pricing"
+              className="inline-flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-900 px-5 py-2.5 text-sm text-zinc-300 hover:border-zinc-600 hover:bg-zinc-800 transition-colors"
+            >
+              See pricing <ChevronRight size={14} />
+            </Link>
           </div>
         </section>
 

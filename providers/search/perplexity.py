@@ -2,6 +2,7 @@ import httpx
 from typing import List
 from .base import SearchProvider, RawSearchResult
 from models.request import SearchRequest
+from providers.retry import with_retry
 from config import settings
 
 class PerplexitySearchProvider(SearchProvider):
@@ -33,14 +34,16 @@ class PerplexitySearchProvider(SearchProvider):
         payload = {k: v for k, v in payload.items() if v is not None}
 
         async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.post(
-                f"{self.base_url}/search",
-                headers=self.headers,
-                json=payload
+            response = await with_retry(
+                lambda: client.post(
+                    f"{self.base_url}/search",
+                    headers=self.headers,
+                    json=payload,
+                ),
+                label="perplexity",
             )
-            
+
             if response.status_code != 200:
-                # Log error here in a real app
                 response.raise_for_status()
             
             data = response.json()

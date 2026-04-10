@@ -7,7 +7,7 @@ All requests to the Snipex API must include a valid API key in the `Authorizatio
 
 ## Getting a key
 
-1. Sign in at [snippex.ai/dashboard](https://snippex.ai/dashboard)
+1. Sign in at [snipex.dev/dashboard](https://snipex.dev/dashboard)
 2. Click **New key**
 3. Give it a name and click **Create**
 4. Copy the full key — it's only shown once
@@ -25,7 +25,7 @@ Authorization: Bearer snx_your_api_key
 **Example:**
 
 ```bash
-curl -X POST https://api.snippex.ai/v1/search \
+curl -X POST https://api.snipex.dev/v1/search \
   -H "Authorization: Bearer snx_your_api_key" \
   -H "Content-Type: application/json" \
   -d '{"query": "..."}'

@@ -14,6 +14,7 @@ import {
   AlertCircle,
   Eye,
   EyeOff,
+  RefreshCw,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -129,7 +130,7 @@ function ApiKeyRow({
       </div>
 
       <div className="flex items-center gap-1 shrink-0">
-        <CopyButton text={apiKey.rawKey ?? apiKey.key.replace(/•/g, "")} />
+        {apiKey.rawKey && <CopyButton text={apiKey.rawKey} />}
         <button
           onClick={handleDelete}
           disabled={deleting}
@@ -201,6 +202,7 @@ export default function DashboardPage() {
   const [usage, setUsage] = useState<UsageData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
   const [creating, setCreating] = useState(false);
   const [newKeyName, setNewKeyName] = useState("");
   const [showNewKeyForm, setShowNewKeyForm] = useState(false);
@@ -293,9 +295,19 @@ export default function DashboardPage() {
           <>
             {/* Usage stats */}
             <section className="mb-8">
-              <h2 className="mb-4 text-sm font-medium text-zinc-400 uppercase tracking-wider">
-                Usage
-              </h2>
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-sm font-medium text-zinc-400 uppercase tracking-wider">
+                  Usage
+                </h2>
+                <button
+                  onClick={async () => { setRefreshing(true); await loadData(); setRefreshing(false); }}
+                  disabled={refreshing}
+                  className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw size={12} className={refreshing ? "animate-spin" : ""} />
+                  Refresh
+                </button>
+              </div>
               <div className="grid gap-4 sm:grid-cols-3">
                 <StatCard
                   label="Requests today"
@@ -401,7 +413,7 @@ export default function DashboardPage() {
                 <p>
                   <span className="text-zinc-200">2.</span> Make a POST request to{" "}
                   <code className="font-mono text-xs text-indigo-300">
-                    {process.env.NEXT_PUBLIC_SNIPEX_API_URL ?? "https://api.snippex.ai"}/v1/search
+                    {process.env.NEXT_PUBLIC_SNIPEX_API_URL ?? "https://api.snipex.dev"}/v1/search
                   </code>
                 </p>
                 <p>

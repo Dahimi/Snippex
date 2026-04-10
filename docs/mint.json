@@ -17,12 +17,12 @@
   "topbarLinks": [
     {
       "name": "Playground",
-      "url": "https://snippex.ai/playground"
+      "url": "https://snipex.dev/playground"
     }
   ],
   "topbarCtaButton": {
     "name": "Get API Key",
-    "url": "https://snippex.ai/dashboard"
+    "url": "https://snipex.dev/dashboard"
   },
   "tabs": [
     {
@@ -34,12 +34,12 @@
     {
       "name": "Playground",
       "icon": "play",
-      "url": "https://snippex.ai/playground"
+      "url": "https://snipex.dev/playground"
     },
     {
       "name": "Dashboard",
       "icon": "gauge",
-      "url": "https://snippex.ai/dashboard"
+      "url": "https://snipex.dev/dashboard"
     }
   ],
   "navigation": [
@@ -77,6 +77,6 @@
     }
   ],
   "footerSocials": {
-    "website": "https://snippex.ai"
+    "website": "https://snipex.dev"
   }
 }

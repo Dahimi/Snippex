@@ -30,11 +30,14 @@ async def handle_webhook(request: Request) -> dict:
 
     if event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
-        if session.get("payment_status") == "paid":
-            user_id = session["metadata"]["user_id"]
-            credits = int(session["metadata"]["credits"])
-            _add_credits(user_id, credits)
-            logger.info("Added %d credits to user %s (session %s)", credits, user_id, session["id"])
+        metadata = session["metadata"].to_dict() if session["metadata"] else {}
+        user_id = metadata.get("user_id")
+        credits = metadata.get("credits")
+        if session["payment_status"] == "paid" and user_id and credits:
+            _add_credits(user_id, int(credits))
+            logger.info("Added %d credits to user %s (session %s)", int(credits), user_id, session["id"])
+        else:
+            logger.warning("Skipping session %s: payment_status=%s metadata=%s", session["id"], session["payment_status"], metadata)
 
     return {"received": True}
 

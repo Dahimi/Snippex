@@ -18,6 +18,8 @@ import { searchViaProxy } from "@/lib/api";
 import type { SearchResponse, SearchDepth, Recency, SearchRequest } from "@/lib/api";
 import clsx from "clsx";
 
+const API_URL = process.env.NEXT_PUBLIC_SNIPEX_API_URL ?? "https://api.snipex.dev";
+
 // ---------------------------------------------------------------------------
 // Code generation
 // ---------------------------------------------------------------------------
@@ -28,7 +30,7 @@ function buildCurl(req: SearchRequest): string {
     null,
     2
   );
-  return `curl -X POST https://api.snippex.ai/v1/search \\
+  return `curl -X POST ${API_URL}/v1/search \\
   -H "Authorization: Bearer snx_your_api_key" \\
   -H "Content-Type: application/json" \\
   -d '${body}'`;
@@ -43,7 +45,7 @@ function buildPython(req: SearchRequest): string {
   return `import requests
 
 response = requests.post(
-    "https://api.snippex.ai/v1/search",
+    "${API_URL}/v1/search",
     headers={"Authorization": "Bearer snx_your_api_key"},
     json=${body},
 )
@@ -61,7 +63,7 @@ function buildJavaScript(req: SearchRequest): string {
     null,
     2
   );
-  return `const response = await fetch("https://api.snippex.ai/v1/search", {
+  return `const response = await fetch("${API_URL}/v1/search", {
   method: "POST",
   headers: {
     "Authorization": "Bearer snx_your_api_key",
