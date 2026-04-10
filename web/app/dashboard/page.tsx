@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useUser } from "@clerk/nextjs";
 import {
   Key,
@@ -24,10 +25,16 @@ import type { ApiKey } from "@/lib/supabase";
 // Types for API responses from our Next.js routes
 // ---------------------------------------------------------------------------
 
+interface DailyUsage {
+  date: string;
+  request_count: number;
+}
+
 interface UsageData {
   today: number;
   this_month: number;
   credits_remaining: number;
+  daily_breakdown: DailyUsage[];
 }
 
 interface NewKeyResponse {
@@ -445,15 +452,43 @@ export default function DashboardPage() {
               </div>
             </section>
 
-            {/* Usage trend placeholder */}
+            {/* Usage chart */}
             <section className="mt-8 rounded-xl border border-zinc-800 bg-zinc-900/30 p-6">
-              <h2 className="mb-4 flex items-center gap-2 text-sm font-medium text-zinc-300">
+              <h2 className="mb-6 flex items-center gap-2 text-sm font-medium text-zinc-300">
                 <TrendingUp size={16} className="text-indigo-400" />
-                Usage over time
+                Requests this month
               </h2>
-              <div className="flex items-center justify-center py-8 text-xs text-zinc-600">
-                Chart coming soon — usage data is being tracked.
-              </div>
+              {usage?.daily_breakdown && usage.daily_breakdown.length > 0 ? (
+                <ResponsiveContainer width="100%" height={160}>
+                  <BarChart data={usage.daily_breakdown} barCategoryGap="30%">
+                    <XAxis
+                      dataKey="date"
+                      tickFormatter={(d: string) => new Date(d).getDate().toString()}
+                      tick={{ fill: "#52525b", fontSize: 11 }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{ fill: "#52525b", fontSize: 11 }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={24}
+                    />
+                    <Tooltip
+                      cursor={{ fill: "rgba(99,102,241,0.08)" }}
+                      contentStyle={{ background: "#18181b", border: "1px solid #27272a", borderRadius: 8, fontSize: 12 }}
+                      labelFormatter={(d) => typeof d === "string" ? new Date(d).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : d}
+                      formatter={(v) => [v, "requests"]}
+                    />
+                    <Bar dataKey="request_count" fill="#6366f1" radius={[3, 3, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center py-10 text-xs text-zinc-600">
+                  No requests yet this month.
+                </div>
+              )}
             </section>
           </>
         )}
