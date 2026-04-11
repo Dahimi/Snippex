@@ -1,9 +1,9 @@
 ---
 title: Authentication
-description: How to authenticate requests to the Snipex API
+description: How to authenticate requests to the Snippex API
 ---
 
-All requests to the Snipex API must include a valid API key in the `Authorization` header.
+All requests to the Snippex API must include a valid API key in the `Authorization` header.
 
 ## Getting a key
 
@@ -40,7 +40,7 @@ curl -X POST https://api.snipex.dev/v1/search \
 - Store keys in environment variables, not hardcoded in source code
 - Use one key per application or environment (staging vs. production)
 - Rotate keys immediately if you suspect they've been compromised — delete the old one from the dashboard and create a new one
-- On the server side, pass requests through a backend proxy rather than calling Snipex directly from the browser
+- On the server side, pass requests through a backend proxy rather than calling Snippex directly from the browser
 
 ## Errors
 

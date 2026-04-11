@@ -26,7 +26,7 @@ export default function Footer() {
           </Link>
         </nav>
         <p className="text-xs text-zinc-600">
-          &copy; {new Date().getFullYear()} Snipex. All rights reserved.
+          &copy; {new Date().getFullYear()} Snippex. All rights reserved.
         </p>
       </div>
     </footer>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
 
-const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL ?? "https://docs.snippex.ai";
+const DOCS_URL = process.env.NEXT_PUBLIC_DOCS_URL ?? "https://docs.snipex.dev";
 import { ArrowRight, Zap, Search, Code2, ChevronRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";

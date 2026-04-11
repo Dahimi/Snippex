@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     title: "Snippex — Search Snippet Extraction API",
     description:
       "Snippex returns the exact relevant passages from each search result — not just links.",
-    url: "https://snippex.ai",
+    url: "https://snipex.dev",
     siteName: "Snippex",
     locale: "en_US",
     type: "website",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     description:
       "Snippex returns the exact relevant passages from each search result — not just links.",
   },
-  metadataBase: new URL("https://snippex.ai"),
+  metadataBase: new URL("https://snipex.dev"),
 };
 
 export default function RootLayout({

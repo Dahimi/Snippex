@@ -440,7 +440,7 @@ export default function DashboardPage() {
                   </a>{" "}
                   to see live results, or read the{" "}
                   <a
-                    href="https://docs.snippex.ai"
+                    href="https://docs.snipex.dev"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-indigo-400 hover:underline"

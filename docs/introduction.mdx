@@ -1,15 +1,15 @@
 ---
 title: Introduction
-description: What Snipex is and why it exists
+description: What Snippex is and why it exists
 ---
 
-## What is Snipex?
+## What is Snippex?
 
-Snipex is a **search API that returns relevant text snippets** from each result — not just URLs and titles.
+Snippex is a **search API that returns relevant text snippets** from each result — not just URLs and titles.
 
 When you run a web search, you get back a list of links. To actually use that information in an application, you have to fetch and parse each page, extract the relevant parts, and rank them — all of which takes time, infrastructure, and significant engineering effort.
 
-Snipex does all of that in a single API call.
+Snippex does all of that in a single API call.
 
 ```bash
 POST https://api.snipex.dev/v1/search
@@ -30,7 +30,7 @@ You send a query. You get back ranked results, each containing **verbatim passag
 
 ## How it differs from a standard search API
 
-| | Standard search API | Snipex |
+| | Standard search API | Snippex |
 |---|---|---|
 | Returns | URLs, titles, short descriptions | URLs, titles + **verbatim relevant passages** |
 | Requires page fetching | Yes — you must crawl each result | No — content is extracted for you |

@@ -1,18 +1,18 @@
 ---
 title: How It Works
-description: A look under the hood at Snipex's extraction pipeline
+description: A look under the hood at Snippex's extraction pipeline
 ---
 
-Snipex turns a plain text query into ranked, verbatim relevant passages in a single API call. Here's what happens internally:
+Snippex turns a plain text query into ranked, verbatim relevant passages in a single API call. Here's what happens internally:
 
 ## The pipeline
 
 <Steps>
   <Step title="Web search">
-    Snipex searches the web for your query, applying any filters you've specified — recency, language, domain allow/block lists — and retrieves the top-ranked pages.
+    Snippex searches the web for your query, applying any filters you've specified — recency, language, domain allow/block lists — and retrieves the top-ranked pages.
   </Step>
   <Step title="Content retrieval">
-    For each result, Snipex fetches the full page content. This is the raw material for extraction — not just the short meta description you'd get from a typical search API.
+    For each result, Snippex fetches the full page content. This is the raw material for extraction — not just the short meta description you'd get from a typical search API.
   </Step>
   <Step title="Snippet extraction">
     Our extraction engine analyzes the full page content against your query and identifies the passages that are most relevant. These are verbatim excerpts — nothing is paraphrased or synthesized.
@@ -33,6 +33,6 @@ For each search result, you receive:
 
 ## Grounded in source content
 
-Every snippet is a verbatim quote from the original page. Snipex does not synthesize, summarize, or generate content. If a passage appears in the response, it exists word-for-word in the source.
+Every snippet is a verbatim quote from the original page. Snippex does not synthesize, summarize, or generate content. If a passage appears in the response, it exists word-for-word in the source.
 
-This makes Snipex suitable for applications that require **attribution**, **citation**, or **factual grounding**.
+This makes Snippex suitable for applications that require **attribution**, **citation**, or **factual grounding**.

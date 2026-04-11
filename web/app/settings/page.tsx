@@ -133,7 +133,7 @@ export default function SettingsPage() {
 
           <div className="mt-6">
             <a
-              href="https://accounts.snippex.ai/user"
+              href="https://accounts.snipex.dev/user"
               target="_blank"
               rel="noopener noreferrer"
               className="flex w-fit items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-300 hover:border-zinc-600 hover:bg-zinc-800 transition-colors"
@@ -218,7 +218,7 @@ export default function SettingsPage() {
         <section className="rounded-xl border border-red-900/30 bg-red-950/10 p-6">
           <SectionHeading>Danger zone</SectionHeading>
           <p className="mb-4 text-sm text-zinc-500">
-            Permanently delete your Snipex account and all associated data.
+            Permanently delete your Snippex account and all associated data.
             This action cannot be undone.
           </p>
           <button
@@ -230,8 +230,8 @@ export default function SettingsPage() {
           </button>
           <p className="mt-2 text-xs text-zinc-600">
             Contact{" "}
-            <a href="mailto:hello@snippex.ai" className="text-zinc-500 hover:underline">
-              hello@snippex.ai
+            <a href="mailto:hello@snipex.dev" className="text-zinc-500 hover:underline">
+              hello@snipex.dev
             </a>{" "}
             to request account deletion.
           </p>
