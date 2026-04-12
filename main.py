@@ -12,7 +12,7 @@ from providers.search.perplexity import PerplexitySearchProvider
 from providers.llm.cerebras import CerebrasLLMProvider
 from services.search_service import SearchService
 from auth.api_key import verify_api_key, UserContext
-from auth.credits import consume_credit, increment_usage
+from auth.credits import check_and_reserve_credit, deduct_credit_background, increment_usage
 from auth.rate_limit import check_rate_limit
 from telemetry.writer import initialize as init_telemetry, write_log
 from billing.checkout import CheckoutRequest, create_checkout_session
@@ -118,7 +118,9 @@ async def search(
 
     # --- Credit enforcement (skipped for admin + internal) ---
     if not ctx.is_admin and not ctx.is_internal:
-        consume_credit(ctx.user_id)  # raises 402 if no credits
+        needs_bg_deduction = check_and_reserve_credit(ctx.user_id)  # raises 402 if no credits
+        if needs_bg_deduction:
+            background_tasks.add_task(deduct_credit_background, ctx.user_id)
 
     # --- Search ---
     try:

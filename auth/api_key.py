@@ -11,8 +11,8 @@ _bearer = HTTPBearer()
 _supabase: Client | None = None
 
 # In-memory API key cache — avoids a Supabase round-trip on every request.
-# TTL of 60s means a revoked key stays valid for at most 1 minute.
-_KEY_CACHE_TTL = 60
+# TTL of 600s means a revoked key stays valid for at most 10 minutes.
+_KEY_CACHE_TTL = 600
 _key_cache: dict[str, tuple["UserContext", float]] = {}
 
 

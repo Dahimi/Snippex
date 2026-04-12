@@ -63,10 +63,12 @@ async def check_rate_limit(ctx: UserContext, raw_key: str) -> None:
     redis_key = f"snx:ratelimit:{key_hash}"
 
     try:
-        count = await redis.incr(redis_key)
-        if count == 1:
-            # First request in window — set expiry
-            await redis.expire(redis_key, _WINDOW_SECONDS)
+        # Pipeline INCR + EXPIRE into a single HTTP round-trip
+        pipe = redis.pipeline()
+        pipe.incr(redis_key)
+        pipe.expire(redis_key, _WINDOW_SECONDS)
+        results = await pipe.execute()
+        count = results[0]
 
         if count > limit:
             raise HTTPException(
