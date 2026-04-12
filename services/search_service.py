@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from typing import List, Optional
 
 from models.request import SearchRequest
-from models.response import SearchResponse, SearchResult, Snippet
+from models.response import SearchResponse, SearchResult, Snippet, DebugSnippet
 from providers.search.base import SearchProvider
 from providers.llm.base import LLMProvider
 from .snippet_reconstructor import reconstruct_snippet
@@ -103,13 +103,18 @@ class SearchService:
                 )
 
                 if outcome.succeeded:
-                    s = Snippet(
-                        text=outcome.text,
-                        relevance_score=anchor.relevance_score,
-                    )
                     if request.debug:
-                        s.head = anchor.head
-                        s.tail = anchor.tail
+                        s = DebugSnippet(
+                            text=outcome.text,
+                            relevance_score=anchor.relevance_score,
+                            head=anchor.head,
+                            tail=anchor.tail,
+                        )
+                    else:
+                        s = Snippet(
+                            text=outcome.text,
+                            relevance_score=anchor.relevance_score,
+                        )
                     snippets.append(s)
 
             res = SearchResult(

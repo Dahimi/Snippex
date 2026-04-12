@@ -20,12 +20,14 @@ class AnchorExtractionResult(BaseModel):
 # --- Public API response models ---
 
 class Snippet(BaseModel):
-    model_config = {"populate_by_name": True}
+    text: str
+    relevance_score: float
 
-    text: str                  # reconstructed from anchor + source content
-    relevance_score: float     # 0.0–1.0, passed through from LLM anchor
-    head: Optional[str] = Field(default=None, exclude=True)
-    tail: Optional[str] = Field(default=None, exclude=True)
+class DebugSnippet(BaseModel):
+    text: str
+    relevance_score: float
+    head: Optional[str] = None
+    tail: Optional[str] = None
 
 class SearchResult(BaseModel):
     rank: int
