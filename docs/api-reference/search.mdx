@@ -55,12 +55,6 @@ POST https://api.snipex.dev/v1/search
   Exclude these domains from results. Pass bare domain names: `["reddit.com"]`.
 </ParamField>
 
-<ParamField body="debug" type="boolean" default="false">
-  When `true`, adds `original_content`, `search_snippet`, `head`, and `tail` fields to the response.
-
-  **Do not use in production** — `original_content` can be very large.
-</ParamField>
-
 ---
 
 ## Response
@@ -92,12 +86,6 @@ POST https://api.snipex.dev/v1/search
         <ResponseField name="relevance_score" type="float">
           How relevant this passage is to your query. Range: `0.0`–`1.0`.
         </ResponseField>
-        <ResponseField name="head" type="string">
-          *(debug only)* First few words used to locate the passage.
-        </ResponseField>
-        <ResponseField name="tail" type="string">
-          *(debug only)* Last few words used to anchor the passage end.
-        </ResponseField>
       </Expandable>
     </ResponseField>
     <ResponseField name="warning" type="string | null">
@@ -108,12 +96,6 @@ POST https://api.snipex.dev/v1/search
     </ResponseField>
     <ResponseField name="last_updated" type="string | null">
       ISO 8601 date string if available from the source page.
-    </ResponseField>
-    <ResponseField name="search_snippet" type="string | null">
-      *(debug only)* The short description originally associated with this result.
-    </ResponseField>
-    <ResponseField name="original_content" type="string | null">
-      *(debug only)* Full page content that was analyzed.
     </ResponseField>
   </Expandable>
 </ResponseField>

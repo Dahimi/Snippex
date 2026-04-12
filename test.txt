@@ -1,0 +1,117 @@
+A user sends a POST request to Snippex with a query and optional parameters — number of results, search depth, recency filter, domain filters. Snippex queries a search backend that returns ranked URLs with raw page content. For each result, we scrape and process the page content, then run a super fast custom extraction model (transformer-based) in parallel across all results. The model doesn't generate text — it identifies anchor phrases pointing to the most relevant passages, which we then locate, reconstruct verbatim from the source, and validate. This architecture is what makes the output hallucination-resistant: the model acts as a pointer, the reconstruction is deterministic. The final response is clean JSON: ranked results, each with title, URL, original search snippet, and our extracted passages with relevance scores.
+
+Honestly, the pipeline is harder to replicate than it looks. It’s not just calling a model on some text — there’s a search layer, a scraping layer, an extraction model that identifies passages rather than generating them, a reconstruction step, and a validation step. Each part has been carefully engineered.
+
+But the real defensibility, for me, is the data. Every request that goes through Snippex becomes a labeled example, so the model continuously improves in a way a new entrant can’t easily match. A well-funded competitor can copy the concept; they can’t copy the data.
+
+
+Built and launched Snippex end-to-end in roughly two months, alongside a full-time job. That includes: the core search and extraction API, provider abstraction layer supporting multiple search and model backends, structured output pipeline with anchor-based hallucination-resistant extraction, the web platform with landing page, documentation, playground, and user dashboard with API key management and credit tracking. 
+
+
+Days, sometimes hours. Adding a new parameter like search depth or tweaking the extraction logic is a same-day change. A more significant feature — like a new provider integration or a new API endpoint — takes one to two days end to end. I work fast partly because I know the stack well, and partly because I use AI-augmented development tools — Cursor, Claude, Claude Code — as a core part of my workflow,
+
+
+The core of Snippex is a custom extraction pipeline: search, scrape, extract, reconstruct, validate. The extraction step uses a transformer-based model fine-tuned for passage identification — not generic text generation. The model outputs anchor phrases rather than generated content, which we use to reconstruct verbatim passages deterministically. This design choice is deliberate: it eliminates hallucination at the architectural level. The model is currently hosted externally with flexibility to switch or combine providers, but our roadmap is clear — we are actively collecting training data from real usage logs to fine-tune and eventually self-host a model optimized specifically for this task. That proprietary training set, built from real queries and real page content, is the long-term defensibility layer that compounds with every request.
+
+
+Significantly. I use Cursor and Claude Code as my primary development environment — not for vibe coding, but as a speed multiplier. I understand the codebase fully and make all architectural decisions, but the actual implementation loop is much faster.
+
+
+
+
+When you build an AI system that needs to reason over live web information, you quickly realize the existing solutions force a tradeoff. Either you use an agentic search layer like Perplexity — which synthesizes answers but introduces hallucinations you can't afford in production. Or you use a raw search API like Tavily — which returns snippets, but they're often too shallow, too noisy, or not relevant enough to actually build on. The alternative is building your own scraping and extraction pipeline, which is expensive, slow, and not your core product. Developers are stuck choosing between hallucination risk, poor relevance, or building infrastructure they shouldn't have to build.
+
+Every team building an LLM application anywhere in the world eventually needs to retrieve information from the web. That's not a regional problem — it's a universal one. And because Snippex is an API, there's no geographic constraint on distribution. A developer in Ben Guerir, Casablanca, San Francisco, or Paris integrates it the same way, with the same three lines of code. The go-to-market is developer-led and community-driven — Hacker News, Reddit, developer forums — which is inherently global and doesn't require a sales team. The market itself is also still in its early innings: AI application development is growing faster than the infrastructure supporting it, which means the window to become the default retrieval layer is open right now.
+
+
+The first users will realistically come through my personal network and developer communities — LinkedIn, Hacker News, Reddit. Geographically that skews US and Europe, where AI application development is most concentrated and where developers are most actively looking for better retrieval infrastructure. Morocco is where my immediate network is, so early signups may come from there, but the real target market is wherever AI startups and developer teams are building — which is predominantly the US and Western Europe for now.
+
+
+Right now the focus is getting developers to actually use it. Free credits get people in the door, and once someone integrates Snippex into something they're building, usage grows naturally as their product grows — that's where the recurring revenue comes from. The credit model means there's no friction to start and no commitment required, which is intentional. As volume grows, the next step is enterprise teams — they use more, need more reliability guarantees, and are willing to pay accordingly. 
+
+
+
+
+No revenue yet — the product just launched. But the model is designed to be recurring by nature: users buy credits and top up as they consume them, with automatic top-up available. Usage grows as their own products grow, so revenue scales with the customer's success.
+
+
+Activated users — developers who have made at least one real API call beyond the playground. Signups mean nothing if nobody integrates and calls the API directly.
+
+
+The most honest signal is that the pain is confirmed, not just assumed. At Alpha10X, my team hits this exact retrieval problem in real client projects — we've lived it. Beyond that, I've had direct conversations with other developers who immediately recognized the problem when I described it. The market signal is also there: competitors in this space have raised tens of millions, which confirms the demand is real. What Snippex adds is the missing piece they haven't solved — depth and relevance of extracted content, not just search metadata.
+
+
+The strongest evidence is that the problem doesn't go away if Snippex does — developers either go back to building their own extraction pipelines or accept the limitations of existing tools. From direct conversations with developers and from my own team's experience at Alpha10X, the reaction when I describe what Snippex does is consistently "we need exactly this." Nobody has said "we'd find something else easily." 
+
+
+Not yet incorporated. Currently operating as an individual, based in France. Planning to incorporate shortly — likely in Morocco, France, or UAE (Achraf is based in UAE)
+
+
+
+
+
+I'm an AI software engineer, currently building production AI systems at Alpha10X for clients like Permira, the World Economic Forum, and Kearney. Across every project, web search was a critical component — our systems needed to retrieve information from the web and use it reliably. We tried the solutions that existed. Perplexity gave thorough answers but introduced hallucinations we couldn't afford in enterprise contexts. Platforms like Tavily and You.com  gave snippets, but they were often too shallow, too noisy, or not relevant enough to the actual query. Building our own scraping and extraction pipeline every time was expensive and slow. That wall kept appearing. So I decided to solve it once, properly, and make it available to every developer hitting the same problem.
+
+
+
+
+Most of my work at Alpha10X revolves around building AI systems that need to reason over external information — market data, company profiles, industry reports, live web content. Web search is almost always in the stack. And what you quickly learn working on real client projects is that the bottleneck is rarely the LLM itself — it's the quality of what you feed it. I've seen firsthand how a poorly retrieved snippet derails an otherwise solid pipeline. How a hallucinated synthesis from an agentic search layer ends up in an executive report. How much engineering time gets burned building custom scraping logic just to get clean, relevant text from a webpage. Snippex is a direct product of that challenge that I kept running into.
+
+
+
+
+I've designed and shipped scalable APIs and distributed systems in production environments where failure was not an option — that's the same standard Snippex is built to. Beyond technical execution, the path to global scale is structurally clear: an API product with developer self-serve requires no sales force, no geographic expansion strategy, no localization. Every team building LLM applications anywhere in the world is a potential user, and that market is growing faster than any solution currently serving it.
+
+
+
+
+
+
+No — this is my second. I co-founded SpaceNet during university, incubated by the Explorer program. The idea was to solve connectivity in remote and rural areas in Africa, leveraging Starlink as infrastructure. Technically we were solid, but we couldn't get the right people at Starlink to the table and the whole thing stalled. What I took from it is that building well and selling well are completely different skills, and I had underestimated the second one. That stayed with me — and when I started Snippex, one of the first things I was deliberate about was not building something whose success depended on a single external partner.
+
+
+The biggest so far was turning down more stable, corporate paths — BCG, OCP, and others — to join Alpha10X, an early-stage AI startup. At the time it felt risky: less security, less brand name on the CV, no guarantee it would lead anywhere. But it's where I learned how AI systems are actually built and shipped under real pressure, with real clients. I don't regret it. The next one — which might actually be bigger — is committing fully to Snippex. The product is already live, but going all-in, making it my primary focus, is the decision I'm standing at right now.
+
+
+
+No. Self-funded. Current costs are covered personally through my salary.
+
+
+Not actively, but open to it. Right now I'm financing the infrastructure costs myself and keeping margins thin intentionally to validate the product and attract early users. If usage grows faster than revenue — which is likely given the scraping and model inference costs in the stack — a small pre-seed raise may become an option. Timing and amount would depend on traction.
+
+First paying users, consistent monthly API usage growth, and at least one enterprise or team-level customer. 
+
+
+
+
+Internally, time is the obvious one — I'm still employed full time, so every hour on Snippex is borrowed. And I'm a technical person, so the commercial and distribution side is genuinely harder for me than building. Externally, the main one is cost — running a model call per result per request adds up fast, and that limits how generous I can be with free credits early on.
+
+
+Distribution, almost certainly. Building felt like the hard part. Getting developers to actually find it, try it, and stick with it is a different challenge and one I have less experience with. 
+
+Costs. The way it's built right now, inference costs scale linearly with usage. I know how to fix it — caching, smarter truncation, eventually a fine-tuned smaller model — but those aren't fully done yet. Beyond that, honestly, me. I can't keep being the only person doing everything at 10x the current volume.
+
+
+Two things. First, the SERP API (aka Web search APIs) category gets redefined — the standard of "we return URLs and metadata" becomes insufficient, and the new baseline becomes "we return URLs, metadata, and relevant extracted context." Second, and more interestingly, the scraping and chunking middleware layer that almost every AI engineering team currently builds in-house becomes unnecessary. Right now thousands of teams are writing the same extraction pipeline from scratch. If Snippex works, that stops being a thing teams build and becomes a thing they call.
+
+Go back to what I was doing — building AI systems professionally.
+
+
+
+
+1. First paying users — converting free tier users into paying ones and reaching a meaningful number that validates the pricing model and confirms real demand.
+2. Cost optimization — reducing inference costs per request through caching, smarter truncation, and eventually a fine-tuned smaller model, to make the unit economics sustainable.
+3. Enterprise tier — packaging Snippex for higher-volume clients with stronger SLAs, and securing the first enterprise contract.
+
+
+Honestly, two things. First, cloud and model inference credits — the cost of running the extraction pipeline is the main thing limiting how generous I can be with free access and how fast I can iterate on quality. Credits from providers would directly extend my runway and let me focus on product instead of cost management. Second, warm introductions to developer communities and potential enterprise clients — distribution is where I'm weakest and where the right connections would compress months of work into weeks.
+
+
+
+I studied at UM6P. I did hackathons there, participated in entrepreneurship events — so this isn't a random application. I know the campus, I know the energy, and I have some respect for what gets built there. On the program itself: the technical side of Snippex is in good progress, the product is live. The gap now is on the business side — reaching the right developers, getting in front of investors who understand infrastructure, stress-testing assumptions I might be too close to see clearly. That's where The Forge's network and the embedded support become genuinely useful to me.
+
+
+Around 70-90 hours per month.
+
+
+Yes — I co-founded SpaceNet and was incubated through the Explorer program during university. That's the only one.
