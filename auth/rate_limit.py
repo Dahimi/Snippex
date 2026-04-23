@@ -67,7 +67,7 @@ async def check_rate_limit(ctx: UserContext, raw_key: str) -> None:
         pipe = redis.pipeline()
         pipe.incr(redis_key)
         pipe.expire(redis_key, _WINDOW_SECONDS)
-        results = await pipe.execute()
+        results = await pipe.exec()
         count = results[0]
 
         if count > limit:
